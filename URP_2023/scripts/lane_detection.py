@@ -18,7 +18,7 @@ class LaneTracker():
         
         self._lane_track_end = False
 
-        self.warp_img_w, self.warp_img_h, self.warp_img_mid = 650, 120, 60
+        self.warp_img_w, self.warp_img_h, self.warp_img_mid = 540, 120, 60
 
         self.lower_wlane = np.array([0, 0, 200])
         self.upper_wlane = np.array([180, 255, 255])
@@ -26,13 +26,15 @@ class LaneTracker():
         self.lower_ylane = np.array([10, 100, 100])
         self.upper_ylane = np.array([40, 255, 255])
 
-        self.warp_src  = np.array([[190, 170], [450, 170], 
-                                [50,  220], [590, 220]], dtype=np.float32)     
+        # self.warp_src  = np.array([[190, 170], [450, 170], 
+        #                         [50,  220], [590, 220]], dtype=np.float32)     
+        self.warp_src  = np.array([[220, 210], [420, 210], 
+                        [50,  260], [630, 260]], dtype=np.float32)     
         # self.warp_src  = np.array([[100, 100], [535, 100], 
         #                         [30,  150], [608, 150]], dtype=np.float32)
 
-        self.warp_dist = np.array([[100, 0], [649-100, 0],
-                                [100, 119], [649-100, 119]], dtype=np.float32)
+        self.warp_dist = np.array([[70, 0], [490, 0],
+                                [70, 120], [490, 120]], dtype=np.float32)
         self.M = cv2.getPerspectiveTransform(self.warp_src, self.warp_dist)
 
         # canny params

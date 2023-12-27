@@ -75,8 +75,8 @@ class Show():
         
     def lidar_callback(self, data):
         self.lidar_raw_data = np.array(data.ranges[1:361]) * 30
-        self.lidar_processing()
-        self.main()
+        resized_frame = self.lidar_processing()
+        self.main(resized_frame)
     
     def color_filter(self, image):
         hls = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
@@ -220,10 +220,18 @@ class Show():
         #     print(middle_angle)        
         # cv2.line(current_frame, (ACT_RAD-1, ACT_RAD-1), (int(ACT_RAD-1 - np.round(DETECT_RANGE * np.sin(np.deg2rad(middle_angle)))), int(ACT_RAD-1 - np.round(DETECT_RANGE * np.cos(np.deg2rad(middle_angle))))), (255, 255, 255), 1)
         
+        
         cv2.imshow("lidar_result", current_frame)
+        
+        resized_frame = cv2.resize(current_frame, (40, 20), interpolation=cv2.INTER_LINEAR)
+
+        cv2.imshow("lidar_result_resized", resized_frame)
+        
         cv2.waitKey(1)
         
-    def main(self):
+        return resized_frame
+        
+    def main(self,resized_frame):
         result_image = np.zeros((PIXEL_HEIGHT, PIXEL_WIDTH, 3), dtype=np.uint8)
         
         half_height = PIXEL_HEIGHT // 2
@@ -247,7 +255,11 @@ class Show():
         cv2.line(result_image, start_point1, end_point1, (255, 255, 255), 1)
         cv2.line(result_image, start_point2, end_point2, (255, 255, 255), 1)
 
-        cv2.imshow("LANE_ONLY", result_image)
+        combined_image = cv2.add(result_image, resized_frame)
+        cv2.imshow("Combined Image", combined_image)
+
+
+        # cv2.imshow("LANE_ONLY", result_image)
         cv2.waitKey(1)
             
 

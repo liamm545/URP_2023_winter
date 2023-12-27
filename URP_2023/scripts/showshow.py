@@ -32,7 +32,8 @@ MIN_ARC_ANGLE=60
 MAX_ARC_ANGLE=120
 ANGLE_INCREMENT=4
 DETECT_RANGE=180
-
+CLUSTER_EPS = 15
+CLUSTER_SAMPLE = 18
 
 class Show():
     def __init__(self):
@@ -180,7 +181,7 @@ class Show():
         if not converted_points:
             return
         
-        dbscan = DBSCAN(eps=8, min_samples=15)
+        dbscan = DBSCAN(eps=CLUSTER_EPS, min_samples=CLUSTER_SAMPLE)
         labels = dbscan.fit_predict(converted_points)
 
         cluster_centers = []
@@ -246,7 +247,7 @@ class Show():
         cv2.line(result_image, start_point1, end_point1, (255, 255, 255), 1)
         cv2.line(result_image, start_point2, end_point2, (255, 255, 255), 1)
 
-        cv2.imshow("Image with Lines", result_image)
+        cv2.imshow("LANE_ONLY", result_image)
         cv2.waitKey(1)
             
 

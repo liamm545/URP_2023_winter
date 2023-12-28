@@ -7,15 +7,14 @@ import torch
 import numpy as np
 import copy
 import torch.nn.functional as F
+import random
+import matplotlib.pyplot as plt
+
 from collections import deque
 from Models import ConvNet
-import random
 from log_utils import logger, mean_val
 from HER import HER
 from copy import deepcopy as dc
-
-###################################
-import matplotlib.pyplot as plt
 
 
 class DQN_HER:

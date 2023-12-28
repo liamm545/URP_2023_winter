@@ -7,22 +7,23 @@ Created on Tue Jan  8 23:23:01 2019
 
 import torch
 import numpy as np
-from matplotlib.pyplot import imshow
+import random
 import matplotlib.pyplot as plt
+import time
+
+from matplotlib.pyplot import imshow
 from smooth_signal import smooth
 from Nav2D import Navigate2D
 from Models import ConvNet
-import time
 from dqn_HER import DQN_HER
 from copy import deepcopy as dc
-import time
 from collections import deque
 
-N = 20
-Nobs = 15
-Dobs = 2
-Rmin = 10
-env = Navigate2D(N,Nobs,Dobs,Rmin)
+
+Nobs = random.randint(1,5,size=1)
+Dobs = 3
+Slope = random.randint(30,90) # 일단 학습할 직선 각도는 30도와 90도 사이
+env = Navigate2D(Nobs,Dobs,Slope)
 gamma = 0.99
 buffer_size = 1000000
 ddqn = True

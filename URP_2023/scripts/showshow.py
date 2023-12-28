@@ -137,7 +137,7 @@ class Show():
                 x2 = int(x0 - 1000*(-b))
                 y2 = int(y0 - 1000*(a))
                 
-                slope = 90 - degrees(atan(b / a))
+                slope = 90 - degrees(atan(float(b / a)))
                 
                 slope_list.append(slope)
                 
@@ -158,6 +158,7 @@ class Show():
     def lidar_processing(self):
         self.lidar_raw_data[self.lidar_raw_data>=MAX_DISTANCE] = -1
         current_frame = np.zeros((ACT_RAD, ACT_RAD * 2, 3), dtype=np.uint8)
+        current_frame_only_clustering = np.zeros((PIXEL_HEIGHT, PIXEL_WIDTH, 3), dtype=np.uint8)
         measured_points = []
         available_angles = []
         converted_points = []
@@ -192,25 +193,34 @@ class Show():
                 cluster_centers.append(cluster_center)
 
         for center in cluster_centers:
-            cv2.circle(current_frame, (int(center[0]), int(center[1])), OBSTACLE_RADIUS, (0, 0, 255), -1)
-        
-        # # Draw a line to obstacles
-        # for theta in range(MIN_ARC_ANGLE-90, MAX_ARC_ANGLE-90, ANGLE_INCREMENT):
-        #     # Find maximum length of line
-        #     r = 1
-        #     while r < DETECT_RANGE:
-        #         if current_frame[int(ACT_RAD-1 - np.round(r * np.cos(np.deg2rad(theta))))][int(ACT_RAD-1 - np.round(r * np.sin(np.deg2rad(theta))))][0] == 255 and\
-        #            current_frame[int(ACT_RAD-1 - np.round(r * np.cos(np.deg2rad(theta))))][int(ACT_RAD-1 - np.round(r * np.sin(np.deg2rad(theta))))][1] == 255 and\
-        #            current_frame[int(ACT_RAD-1 - np.round(r * np.cos(np.deg2rad(theta))))][int(ACT_RAD-1 - np.round(r * np.sin(np.deg2rad(theta))))][2] == 255: break
-        #         r += 1
+            new_center_x = (center[0] / (ACT_RAD*2)) * PIXEL_WIDTH
+            new_center_y = (center[1] / ACT_RAD) * PIXEL_HEIGHT
 
-        #     if r != DETECT_RANGE:
-        #         # draw a red line (detected)
-        #         cv2.line(current_frame, (ACT_RAD-1, ACT_RAD-1),(int(ACT_RAD-1 - np.round(r * np.sin(np.deg2rad(theta)))), int(ACT_RAD-1 - np.round(r * np.cos(np.deg2rad(theta))))), (0, 0, 255), 1)
-        #     else:
-        #         # draw a gray line (not detected)
-        #         cv2.line(current_frame, (ACT_RAD-1, ACT_RAD-1), (int(ACT_RAD-1 - np.round(DETECT_RANGE * np.sin(np.deg2rad(theta)))), int(ACT_RAD-1 - np.round(DETECT_RANGE * np.cos(np.deg2rad(theta))))), (0, 255, 0), 1)
-        #         available_angles.append(theta)
+            cv2.circle(current_frame, (int(center[0]), int(center[1])), OBSTACLE_RADIUS, (0, 0, 255), -1)
+            # cv2.circle(current_frame_only_clustering, (int(new_center_x), int(new_center_y)), 1, (0, 0, 255), -1)
+            cv2.rectangle(current_frame_only_clustering, (int(new_center_x)-1, int(new_center_y)-1),(int(new_center_x)+1, int(new_center_y)+1), (0, 0, 255), cv2.FILLED)
+
+
+        # Draw a line to obstacles
+        for theta in range(MIN_ARC_ANGLE-90, MAX_ARC_ANGLE-90, ANGLE_INCREMENT):
+            # Find maximum length of line
+            r = 1
+            while r < DETECT_RANGE:
+                if current_frame[int(ACT_RAD-1 - np.round(r * np.cos(np.deg2rad(theta))))][int(ACT_RAD-1 - np.round(r * np.sin(np.deg2rad(theta))))][0] == 255 and\
+                   current_frame[int(ACT_RAD-1 - np.round(r * np.cos(np.deg2rad(theta))))][int(ACT_RAD-1 - np.round(r * np.sin(np.deg2rad(theta))))][1] == 255 and\
+                   current_frame[int(ACT_RAD-1 - np.round(r * np.cos(np.deg2rad(theta))))][int(ACT_RAD-1 - np.round(r * np.sin(np.deg2rad(theta))))][2] == 255: break
+                r += 1
+
+            if r != DETECT_RANGE:
+                # draw a red line (detected)
+                cv2.line(current_frame, (ACT_RAD-1, ACT_RAD-1),(int(ACT_RAD-1 - np.round(r * np.sin(np.deg2rad(theta)))), int(ACT_RAD-1 - np.round(r * np.cos(np.deg2rad(theta))))), (0, 0, 255), 1)
+                self.trig = True
+                # cv2.line(current_frame, (ACT_RAD-1, ACT_RAD-1),(int(ACT_RAD-1 - np.round(r * np.sin(np.deg2rad(theta)))), int(ACT_RAD-1 - np.round(r * np.cos(np.deg2rad(theta))))), (0, 0, 255), 1)
+            else:
+                # draw a gray line (not detected)
+                cv2.line(current_frame, (ACT_RAD-1, ACT_RAD-1), (int(ACT_RAD-1 - np.round(DETECT_RANGE * np.sin(np.deg2rad(theta)))), int(ACT_RAD-1 - np.round(DETECT_RANGE * np.cos(np.deg2rad(theta))))), (0, 255, 0), 1)
+                # cv2.line(current_frame, (ACT_RAD-1, ACT_RAD-1), (int(ACT_RAD-1 - np.round(DETECT_RANGE * np.sin(np.deg2rad(theta)))), int(ACT_RAD-1 - np.round(DETECT_RANGE * np.cos(np.deg2rad(theta))))), (0, 255, 0), 1)
+                available_angles.append(theta)
         
         # # control angle
         # if len(available_angles) == 0:
@@ -222,42 +232,46 @@ class Show():
         
         
         cv2.imshow("lidar_result", current_frame)
+        cv2.imshow("lidar_result_clustering", current_frame_only_clustering)
         
         resized_frame = cv2.resize(current_frame, (40, 20), interpolation=cv2.INTER_LINEAR)
+        # resized_frame_only_clustering = cv2.resize(current_frame_only_clustering, (40, 20), interpolation=cv2.INTER_LINEAR)
 
-        cv2.imshow("lidar_result_resized", resized_frame)
+        # cv2.imshow("lidar_result_resized", resized_frame)
+        cv2.imshow("clustering_result_resized", current_frame_only_clustering)
+        
         
         cv2.waitKey(1)
         
-        return resized_frame
+        # return resized_frame
+        return current_frame_only_clustering
         
     def main(self,resized_frame):
         result_image = np.zeros((PIXEL_HEIGHT, PIXEL_WIDTH, 3), dtype=np.uint8)
         
         half_height = PIXEL_HEIGHT // 2
 
-        reversed_slope = np.tan(np.radians(self.lane_slope))  # 반대로 그려져서 뒤집음
-    
-        left_end_x = int(left_point[0] + half_height / reversed_slope)
-        left_end_y1 = int(left_point[1] - half_height)
-        left_end_y2 = int(left_point[1] + half_height)
+        slope = np.tan(np.radians(self.lane_slope))
+        # print(np.radians(self.lane_slope))
+        # print(slope)
+        left_end_x = int(left_point[0] + half_height / slope)
+        left_end_y = int(left_point[1] + half_height)
         
-        right_end_x = int(right_point[0] + half_height / reversed_slope)
-        right_end_y1 = int(right_point[1] - half_height)
-        right_end_y2 = int(right_point[1] + half_height)
+        right_end_x = int(right_point[0] + half_height / slope)
+        right_end_y = int(right_point[1] + half_height)
         
         start_point1 = (left_point[0], left_point[1] - half_height)
-        end_point1 = (left_end_x, left_end_y2)
-
+        end_point1 = (left_end_x, left_end_y)
+        
         start_point2 = (right_point[0], right_point[1] - half_height)
-        end_point2 = (right_end_x, right_end_y2)
+        end_point2 = (right_end_x, right_end_y)
 
         cv2.line(result_image, start_point1, end_point1, (255, 255, 255), 1)
         cv2.line(result_image, start_point2, end_point2, (255, 255, 255), 1)
 
         combined_image = cv2.add(result_image, resized_frame)
         cv2.imshow("Combined Image", combined_image)
-
+        print(self.trig)
 
         # cv2.imshow("LANE_ONLY", result_image)
         cv2.waitKey(1)

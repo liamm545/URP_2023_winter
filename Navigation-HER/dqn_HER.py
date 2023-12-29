@@ -56,7 +56,7 @@ class DQN_HER:
         sum_r = 0
         mean_loss = mean_val()
         min_dist = 100000
-        max_t = 100 # try_times를 좀 늘렸습니다. 50 -> 00
+        max_t = 50 
         ############################################
         trajectory = [obs]
         ############################################

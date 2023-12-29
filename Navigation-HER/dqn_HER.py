@@ -21,7 +21,7 @@ class DQN_HER:
     def __init__(self, env, gamma, buffer_size, ddqn):
         self.env = env
         [Sdim,Adim] = env.get_dims()
-        self.model = ConvNet(Sdim[0],Sdim[0],3,Adim).cuda()
+        self.model = ConvNet(Sdim[0],Sdim[1],3,Adim).cuda()
         self.target_model = copy.deepcopy(self.model).cuda()
         self.her = HER()
         self.gamma = gamma
@@ -56,7 +56,7 @@ class DQN_HER:
         sum_r = 0
         mean_loss = mean_val()
         min_dist = 100000
-        max_t = 50
+        max_t = 100 # try_times를 좀 늘렸습니다. 50 -> 00
         ############################################
         trajectory = [obs]
         ############################################
@@ -97,7 +97,7 @@ class DQN_HER:
                 
                 
         ##################################
-        if i % 20 ==0:
+        if i % 2 ==0:
             self.visualize_episode(trajectory)        
         ##################################
 
@@ -182,7 +182,7 @@ class DQN_HER:
     ##################################
     plt.ion()
     def visualize_episode(self, trajectory):
-        img = np.zeros((self.env.N, self.env.N, 3), dtype=np.uint8)
+        img = np.zeros((20, 40, 3), dtype=np.uint8)
         img[trajectory[0][:, :, 0] == 1.0] = [255, 0, 0]  #장애물
 
         for obs in trajectory:

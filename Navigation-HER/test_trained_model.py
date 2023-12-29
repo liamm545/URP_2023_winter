@@ -7,6 +7,7 @@ Created on Mon Feb 25 07:57:53 2019
 
 import torch 
 import numpy as np
+import random
 from Models import ConvNet
 from Nav2D import Navigate2D
 from copy import deepcopy as dc
@@ -15,13 +16,12 @@ TRY_TIMES = 100
 epochs = 500000
 success_num = 0
 
-N = 20
-Nobs = 15
+Nobs = 4
 Dobs = 2
-Rmin = 10
-env = Navigate2D(N,Nobs,Dobs,Rmin)
+Slope = random.randint(30,90)
+env = Navigate2D(Nobs,Dobs,Slope)
 [Sdim,Adim] = env.get_dims()
-model = ConvNet(Sdim[0],Sdim[0],3,Adim).cuda()
+model = ConvNet(Sdim[0],Sdim[1],3,Adim).cuda()
 model.load_state_dict(torch.load('model.pt'))
 image_mean = torch.load('norm.pt').cuda()
 for i in range(epochs) :

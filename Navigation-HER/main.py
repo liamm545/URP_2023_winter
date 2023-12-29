@@ -20,10 +20,10 @@ from copy import deepcopy as dc
 from collections import deque
 
 
-Nobs = random.randint(1,5,size=1)
+Nobs = random.randint(1,4)
 Dobs = 3
-Slope = random.randint(30,90) # 일단 학습할 직선 각도는 30도와 90도 사이
-env = Navigate2D(Nobs,Dobs,Slope)
+Rmin = 10
+env = Navigate2D(Nobs,Dobs,Rmin)
 gamma = 0.99
 buffer_size = 1000000
 ddqn = True

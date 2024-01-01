@@ -11,7 +11,7 @@ import random
 import matplotlib.pyplot as plt
 
 from collections import deque
-from Models import ConvNet
+from Models import ConvNet, ConvNet_noPool
 from log_utils import logger, mean_val
 from HER import HER
 from copy import deepcopy as dc
@@ -21,7 +21,10 @@ class DQN_HER:
     def __init__(self, env, gamma, buffer_size, ddqn):
         self.env = env
         [Sdim,Adim] = env.get_dims()
+        # pooling
         self.model = ConvNet(Sdim[0],Sdim[1],3,Adim).cuda()
+        # no pooling
+        self.model = ConvNet_noPool(Sdim[0],Sdim[1],3,Adim).cuda()
         self.target_model = copy.deepcopy(self.model).cuda()
         self.her = HER()
         self.gamma = gamma

@@ -3,7 +3,6 @@
 import rospy
 import cv2
 import numpy as np
-import math
 from math import *
 from cv_bridge import CvBridge
 from sensor_msgs.msg import LaserScan, CompressedImage

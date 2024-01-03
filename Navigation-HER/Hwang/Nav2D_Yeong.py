@@ -118,7 +118,7 @@ class Navigate2D:
         if (grid[new_pos[0],new_pos[1],0] == 1.0):
             return grid, reward, done, dist2
         if (grid[new_pos[0],new_pos[1],3] == 1.0):
-            reward = 0.5
+            reward = -0.5
             return grid, reward, done, dist2
         
         new_grid[pos[0],pos[1],1] = 0.0

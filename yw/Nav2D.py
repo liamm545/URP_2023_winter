@@ -27,6 +27,7 @@ class Navigate2D:
         self.state_dim = [self.W,self.H,3]
         self.action_dim = 4
         self.scale = 10.0
+
     def get_dims(self):
         return self.state_dim, self.action_dim
         
@@ -82,20 +83,31 @@ class Navigate2D:
         done = False
         reward = -1.0
         act = np.array([[1,0],[0,1],[-1,0],[0,-1]])
+
         pos = np.argwhere(grid[:,:,1] == self.scale**1.0)[0]
         target = np.argwhere(grid[:,:,2] == self.scale*1.0)[0]
+        action = np.clip(action, 0, 3)
+
+        # Check if action index is valid
+        if action < 0 or action >= len(act):
+            raise ValueError(f"Invalid action index: {action}. Action index should be between 0 and {len(act) - 1}.")
+        
         new_pos = pos + act[action]
+        
         dist1 = np.linalg.norm(pos - target)
         dist2 = np.linalg.norm(new_pos - target)
         #reward = (dist1 - dist2)*(max_norm - dist2)
         #reward = -dist2
         reward = -1
+
         if (np.any(new_pos < 0.0) or new_pos[1] > (40 - 1) or new_pos[0] > (20 -1) or (grid[new_pos[0],new_pos[1],0] == 1.0)):
             #dist = np.linalg.norm(pos - target)
             #reward = (dist1 - dist2)
             return grid, reward, done, dist2
+        
         new_grid[pos[0],pos[1],1] = 0.0
         new_grid[new_pos[0],new_pos[1],1] = self.scale*1.0
+
         if ((new_pos[0] == target[0]) and (new_pos[1] == target[1])):
             reward = 0.0
             done = True

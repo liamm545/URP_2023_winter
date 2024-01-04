@@ -14,7 +14,7 @@ import time
 from matplotlib.pyplot import imshow
 from smooth_signal import smooth
 from Nav2D import Navigate2D
-from Models import ConvNet
+from Models import ConvNet,ConvNet_withLSTM
 from dqn_HER import DQN_HER
 from copy import deepcopy as dc
 from collections import deque

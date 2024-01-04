@@ -58,7 +58,7 @@ class Navigate2D:
         # 라바콘 생성
         for _ in range(curr_Nobs):
             # 일단 장애물의 y 중심 먼저 생성
-            center_y = random.randint(3,15)
+            center_y = random.randint(3,10)
             # 선택한 y값 기준 직선 안쪽에 있는 경계들 중에서 랜덤으로 x값 생성
             y_1 , y_2 = min(np.argwhere(grid[center_y,:,0] == 1)+2), max(np.argwhere(grid[center_y,:,0] == 1)-2)
             center_x = random.randint(min(y_1,y_2), max(y_1,y_2))
@@ -115,15 +115,18 @@ class Navigate2D:
             #reward = (dist1 - dist2)
             return grid, reward, done, dist2
         
-        if (grid[new_pos[0],new_pos[1],0] == 1.0):
-            return grid, reward, done, dist2
+        # if (grid[new_pos[0],new_pos[1],0] == 1.0):
+        #     return grid, reward, done, dist2
         if (grid[new_pos[0],new_pos[1],3] == 1.0):
-            reward = -0.2
+            reward = -0.5
+            return grid, reward, done, dist2
+        elif (grid[new_pos[0],new_pos[1],0] == 1.0):
             return grid, reward, done, dist2
         
         new_grid[pos[0],pos[1],1] = 0.0
         new_grid[new_pos[0],new_pos[1],1] = self.scale*1.0
         if ((new_pos[0] == target[0]) and (new_pos[1] == target[1])):
+            print("good")
             reward = 0.0
             done = True
         #dist = np.linalg.norm(new_pos - target)

@@ -1,0 +1,45 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/heven/catkin_ws/devel/include/**",
+        "/home/heven/study_ws/devel/include/**",
+        "/home/heven/hevensv_ws/devel/include/**",
+        "/home/heven/pandan_ws/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/heven/study_ws/src/study/navigation-noetic-devel/amcl/include/**",
+        "/home/heven/study_ws/src/study/navigation-noetic-devel/base_local_planner/include/**",
+        "/home/heven/study_ws/src/study/navigation-noetic-devel/carrot_planner/include/**",
+        "/home/heven/study_ws/src/study/navigation-noetic-devel/clear_costmap_recovery/include/**",
+        "/home/heven/study_ws/src/study/navigation-noetic-devel/costmap_2d/include/**",
+        "/home/heven/study_ws/src/study/navigation-noetic-devel/dwa_local_planner/include/**",
+        "/home/heven/catkin_ws/src/heven_autonomous/erp42_driver/include/**",
+        "/home/heven/catkin_ws/src/heven_autonomous/erp42_communications/erp42_serial/include/**",
+        "/home/heven/study_ws/src/study/navigation-noetic-devel/global_planner/include/**",
+        "/home/heven/study_ws/src/study/navigation-noetic-devel/map_server/include/**",
+        "/home/heven/study_ws/src/study/navigation-noetic-devel/move_base/include/**",
+        "/home/heven/study_ws/src/study/navigation-noetic-devel/move_slow_and_clear/include/**",
+        "/home/heven/study_ws/src/study/navigation-noetic-devel/nav_core/include/**",
+        "/home/heven/study_ws/src/study/navigation-noetic-devel/navfn/include/**",
+        "/home/heven/catkin_ws/src/shark/pointcloud_to_laserscan/include/**",
+        "/home/heven/study_ws/src/study/navigation-noetic-devel/rotate_recovery/include/**",
+        "/home/heven/hevensv_ws/src/2023_Seoul_Virtual_HEVEN/velodyne/velodyne_driver/include/**",
+        "/home/heven/hevensv_ws/src/2023_Seoul_Virtual_HEVEN/velodyne/velodyne_laserscan/include/**",
+        "/home/heven/hevensv_ws/src/2023_Seoul_Virtual_HEVEN/velodyne/velodyne_pcl/include/**",
+        "/home/heven/hevensv_ws/src/2023_Seoul_Virtual_HEVEN/velodyne/velodyne_pointcloud/include/**",
+        "/home/heven/study_ws/src/study/navigation-noetic-devel/voxel_grid/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

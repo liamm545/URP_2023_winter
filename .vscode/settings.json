@@ -1,0 +1,16 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/heven/catkin_ws/devel/lib/python3/dist-packages",
+        "/home/heven/hevensv_ws/devel/lib/python3/dist-packages",
+        "/home/heven/study_ws/devel/lib/python3/dist-packages",
+        "/home/heven/pandan_ws/devel/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/heven/catkin_ws/devel/lib/python3/dist-packages",
+        "/home/heven/hevensv_ws/devel/lib/python3/dist-packages",
+        "/home/heven/study_ws/devel/lib/python3/dist-packages",
+        "/home/heven/pandan_ws/devel/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages"
+    ]
+}

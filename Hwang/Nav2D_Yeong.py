@@ -100,7 +100,7 @@ class Navigate2D:
         # max_norm = self.N
         new_grid = dc(grid)
         done = False
-        reward = -1.0
+        reward = -0.5
         act = np.array([[1,0],[0,1],[-1,0],[0,-1]])
         pos = np.argwhere(grid[:,:,1] == self.scale**1.0)[0]
         target = np.argwhere(grid[:,:,2] == self.scale*1.0)[0]
@@ -113,21 +113,23 @@ class Navigate2D:
         if (np.any(new_pos < 0.0) or new_pos[1] > (40 - 1) or new_pos[0] > (20 -1)):
             #dist = np.linalg.norm(pos - target)
             #reward = (dist1 - dist2)
+            reward = -2.0
             return grid, reward, done, dist2
         
         # if (grid[new_pos[0],new_pos[1],0] == 1.0):
         #     return grid, reward, done, dist2
         if (grid[new_pos[0],new_pos[1],3] == 1.0):
-            reward = -0.5
+            reward = -1.0
             return grid, reward, done, dist2
         elif (grid[new_pos[0],new_pos[1],0] == 1.0):
+            reward = -2.0
             return grid, reward, done, dist2
         
         new_grid[pos[0],pos[1],1] = 0.0
         new_grid[new_pos[0],new_pos[1],1] = self.scale*1.0
         if ((new_pos[0] == target[0]) and (new_pos[1] == target[1])):
             print("good")
-            reward = 0.0
+            reward = 10.0
             done = True
         #dist = np.linalg.norm(new_pos - target)
         #reward = (dist1 - dist2)

@@ -13,6 +13,7 @@ import random
 import math
 from matplotlib.pyplot import imshow
 from copy import deepcopy as dc
+from collections import deque
 
 LEFT_POINT = (9, 9)
 RIGHT_POINT = (29, 9)
@@ -25,8 +26,11 @@ class Navigate2D:
         self.Dobs = Dobs
         self.Rmin = Rmin
         self.state_dim = [self.W,self.H,3]
-        self.action_dim = 4
+        self.action_dim = 3
         self.scale = 10.0
+        self.consecutive_steps = 0
+        self.prev_positions = deque(maxlen=4)
+        
     def get_dims(self):
         return self.state_dim, self.action_dim
         
@@ -47,6 +51,9 @@ class Navigate2D:
 
         right_end_x = left_end_x + 20
         right_end_y = 0
+        
+        self.consecutive_steps = 0
+        self.prev_pos = None
         
         cv2.line(grid, (left_end_x,left_end_y),(left_start_x,left_start_y),
                  (1, 0, 0,0), 1)
@@ -101,7 +108,8 @@ class Navigate2D:
         new_grid = dc(grid)
         done = False
         reward = -0.5
-        act = np.array([[1,0],[0,1],[-1,0],[0,-1]])
+        # act = np.array([[1,0],[0,1],[-1,0],[0,-1]])
+        act = np.array([[0,1],[-1,0],[0,-1]])
         pos = np.argwhere(grid[:,:,1] == self.scale**1.0)[0]
         target = np.argwhere(grid[:,:,2] == self.scale*1.0)[0]
         new_pos = pos + act[action]
@@ -110,16 +118,22 @@ class Navigate2D:
         #reward = (dist1 - dist2)*(max_norm - dist2)
         #reward = -dist2
         # reward = -1.0
+        
+        self.prev_positions.append(pos)
+        
+        if len(self.prev_positions) == 4 and pos[0] == self.prev_positions[3][0]:
+            reward = -1.5
+        
         if (np.any(new_pos < 0.0) or new_pos[1] > (40 - 1) or new_pos[0] > (20 -1)):
             #dist = np.linalg.norm(pos - target)
             #reward = (dist1 - dist2)
-            reward = -2.0
+            reward = -5.0
             return grid, reward, done, dist2
         
         # if (grid[new_pos[0],new_pos[1],0] == 1.0):
         #     return grid, reward, done, dist2
         if (grid[new_pos[0],new_pos[1],3] == 1.0):
-            reward = -1.0
+            reward = -0.7
             return grid, reward, done, dist2
         elif (grid[new_pos[0],new_pos[1],0] == 1.0):
             reward = -2.0

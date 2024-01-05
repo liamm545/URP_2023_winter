@@ -102,7 +102,7 @@ class DQN_HER:
                 
                 
         ##################################
-        if i % 3 ==0:
+        if i % 20 ==0:
             self.visualize_episode(trajectory)        
         ##################################
 

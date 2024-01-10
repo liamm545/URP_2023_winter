@@ -64,6 +64,7 @@ class DQN_HER:
         
         ############################################
         trajectory = [obs]
+        trajectory2 = [obs]
         ############################################
         
         for t in range(max_t):
@@ -77,7 +78,10 @@ class DQN_HER:
                 action = torch.argmax(Q,dim=1)
             ############################################
             
-            new_obs, reward, done, dist = self.env.step(obs,action.item())
+            new_obs, reward, done, dist, car_grid, crack = self.env.step(obs,action.item())
+            if not crack:
+                Print = True
+                trajectory2.append(car_grid)
             new_state = self.env.get_tensor(new_obs)
             sum_r = sum_r + reward
             if dist < min_dist:
@@ -101,11 +105,13 @@ class DQN_HER:
                 self.target_model.load_state_dict(self.model.state_dict())
                 self.step_counter = 0
                 print('updated target model')
+            if done : 
+                break
                 
                 
         ##################################
-        if i % 20 ==0:
-            self.visualize_episode(trajectory)        
+        if i % 10 ==0:
+            self.visualize_episode(trajectory, trajectory2)
         ##################################
 
         her_list = self.her.backward()
@@ -132,7 +138,7 @@ class DQN_HER:
                 action = torch.randint(0,Q.shape[1],(1,)).type(torch.LongTensor)
             else:
                 action = torch.argmax(Q,dim=1)
-            new_obs, reward, done, dist = self.env.step(obs,action.item())
+            new_obs, reward, done, dist, _, _ = self.env.step(obs,action.item())
             new_state = self.env.get_tensor(new_obs)
             sum_r = sum_r + reward
             if dist < min_dist:
@@ -186,26 +192,73 @@ class DQN_HER:
         return self.log
 
 
-    ##################################
+    # ##################################
+    # plt.ion()
+    # def visualize_episode(self, trajectory):
+    #     img = np.zeros((20, 40, 3), dtype=np.uint8)
+    #     # img[:, :, 3] = 255
+        
+    #     img[trajectory[0][:, :, 0] == 1.0] = [255, 0, 0]  #장애물
+
+    #     img[trajectory[0][:, :, 0] == 255.0] = [255, 0, 255]  #surplus
+
+    #     for obs in trajectory:
+    #         pos = np.argwhere(obs[:, :, 1] == 10.0)[0]
+    #         img[pos[0], pos[1]] = [255, 255, 0]  #이동 경로
+        
+    #     initial = np.argwhere(trajectory[0][:, :, 1] == self.env.scale)[0]
+    #     img[initial[0], initial[1]] = [0, 255, 0]  #시작 위치
+        
+    #     target = np.argwhere(trajectory[0][:, :, 2] == self.env.scale)[0]
+    #     img[target[0], target[1]] = [0, 0, 255]  #목표 위치
+
+        # plt.imshow(img)
+        # plt.pause(0.1)
+    # plt.ioff()
+    
     plt.ion()
-    def visualize_episode(self, trajectory):
-        img = np.zeros((20, 40, 3), dtype=np.uint8)
-        # img[:, :, 3] = 255
-        
-        img[trajectory[0][:, :, 0] == 1.0] = [255, 0, 0]  #장애물
+    def visualize_episode(self,trajectory_1, trajectory_2):
+        # _, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
 
-        img[trajectory[0][:, :, 0] == 255.0] = [255, 0, 255]  #surplus
+        # 첫번째 모델 Visualization
+        img_1 = np.zeros((20, 40, 3), dtype=np.uint8)
+        img_1[trajectory_1[0][:, :, 0] == 1.0] = [255, 0, 0]  # 장애물 red 
+        img_1[trajectory_1[0][:, :, 0] == 2.0] = [255, 255, 255]  # 차선 white
+        img_1[trajectory_1[0][:, :, 0] == 255.0] = [255, 0, 255]  #surplus pink
 
-        for obs in trajectory:
+        for obs in trajectory_1:
             pos = np.argwhere(obs[:, :, 1] == 10.0)[0]
-            img[pos[0], pos[1]] = [255, 255, 0]  #이동 경로
-        
-        initial = np.argwhere(trajectory[0][:, :, 1] == self.env.scale)[0]
-        img[initial[0], initial[1]] = [0, 255, 0]  #시작 위치
-        
-        target = np.argwhere(trajectory[0][:, :, 2] == self.env.scale)[0]
-        img[target[0], target[1]] = [0, 0, 255]  #목표 위치
+            img_1[pos[0], pos[1]] = [255, 255, 0]  # 이동 경로
+        img_1[pos[0], pos[1]] = [0, 255, 255]
 
-        plt.imshow(img)
+        initial = np.argwhere(trajectory_1[0][:, :, 1] == self.env.scale)[0]
+        img_1[initial[0], initial[1]] = [0, 255, 0]  # 시작 위치
+
+        target = np.argwhere(trajectory_1[0][:, :, 2] == self.env.scale)[0]
+        img_1[target[0], target[1]] = [0, 0, 255]  # 목표 위치
+
+        plt.subplot(1, 2, 1)
+        plt.imshow(img_1)
+        plt.title('Model 1')
+
+        # 차가 지나간 자리 visualization
+        img_2 = np.zeros((20, 40, 3), dtype=np.uint8)
+        img_2[trajectory_2[0][:, :, 0] == 1.0] = [255, 0, 0]  # 장애물 red
+        img_2[trajectory_2[0][:, :, 0] == 2.0] = [255, 255, 255] # 차선 white
+        img_2[trajectory_1[0][:, :, 0] == 255.0] = [255, 0, 255]  #surplus pink
+        
+        for cars in trajectory_2 :
+            car_pos = np.where((cars[:,:,1]==255) & (cars[:,:,2]==255))
+            car_pos = list(zip(car_pos[0],car_pos[1]))
+
+            for car in car_pos :
+                img_2[car[0], car[1]] = [0,255,255]
+            img_2[pos[0], pos[1]] = [255, 0, 255] # 마지막위치
+            
+        plt.subplot(1, 2, 2)
+        plt.imshow(img_2)
+        plt.title('Model 2')
+
+        plt.draw()
         plt.pause(0.1)
     plt.ioff()

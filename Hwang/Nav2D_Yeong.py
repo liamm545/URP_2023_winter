@@ -36,7 +36,7 @@ class Navigate2D:
         
     def reset(self):
         # map 밑배경 생성
-        grid = np.zeros((self.H,self.W,4))
+        grid = np.zeros((self.H,self.W,3))
 
         self.slope = math.tan(math.pi * random.randint(45,135)/180)
         # 차선 생성
@@ -55,16 +55,17 @@ class Navigate2D:
         self.consecutive_steps = 0
         self.prev_pos = None
         
+        # 차선 draw
         cv2.line(grid, (left_end_x,left_end_y),(left_start_x,left_start_y),
-                 (1, 0, 0,0), 1)
+                 (1, 0, 0), 1)
         cv2.line(grid, (right_end_x,right_end_y),(right_start_x, right_start_y), 
-                 (1, 0, 0,0), 1)
+                 (1, 0, 0), 1)
 
         curr_Nobs = self.Nobs
 
         # 라바콘 생성
         for _ in range(curr_Nobs):
-            # 일단 장애물의 y 중심 먼저 생성
+            # 장애물의 y 중심 생성
             center_y = random.randint(3,10)
             # 선택한 y값 기준 직선 안쪽에 있는 경계들 중에서 랜덤으로 x값 생성
             y_1 , y_2 = min(np.argwhere(grid[center_y,:,0] == 1)+2), max(np.argwhere(grid[center_y,:,0] == 1)-2)
@@ -72,24 +73,24 @@ class Navigate2D:
             minX = center_x - 2
             minY = center_y - 2
             maxX = center_x + 2
-            maxY = center_y + 2 
+            maxY = center_y + 2
             grid[minY:maxY,minX:maxX,0] = 1.0
             
             # labacorn surplus 생성
-            grid[minY-1:minY,minX-1:maxX+1,3] = 1.0
-            grid[minY:maxY,minX-1:minX,3] = 1.0
-            grid[minY:maxY,maxX:maxX+1,3] = 1.0
-            grid[maxY:maxY+1,minX-1:maxX+1,3] = 1.0
+            grid[minY-1:minY,minX-1:maxX+1,0] = 255.0
+            grid[minY:maxY,minX-1:minX,0] = 255.0
+            grid[minY:maxY,maxX:maxX+1,0] = 255.0
+            grid[maxY:maxY+1,minX-1:maxX+1,0] = 255.0
 
         # lane surplus 생성
         cv2.line(grid, (left_end_x-1,left_end_y),(left_start_x-1,left_start_y),
-                    (0, 0, 0,1), 1)
+                    (255, 0, 0), 1)
         cv2.line(grid, (left_end_x+1,left_end_y),(left_start_x+1,left_start_y),
-                    (0, 0, 0,1), 1)
+                    (255, 0, 0), 1)
         cv2.line(grid, (right_end_x-1,right_end_y),(right_start_x-1, right_start_y), 
-                    (0, 0, 0,1), 1)
+                    (255, 0, 0), 1)
         cv2.line(grid, (right_end_x+1,right_end_y),(right_start_x+1, right_start_y), 
-                    (0, 0, 0,1), 1)
+                    (255, 0, 0), 1)
         
         # 출발점 생성. 차선 안쪽에서 생성하도록 
         start = (19,int((left_start_x+right_start_x)/2))
@@ -110,6 +111,7 @@ class Navigate2D:
         reward = -0.5
         # act = np.array([[1,0],[0,1],[-1,0],[0,-1]])
         act = np.array([[0,1],[-1,0],[0,-1]])
+        
         pos = np.argwhere(grid[:,:,1] == self.scale**1.0)[0]
         target = np.argwhere(grid[:,:,2] == self.scale*1.0)[0]
         new_pos = pos + act[action]
@@ -122,28 +124,32 @@ class Navigate2D:
         self.prev_positions.append(pos)
         
         if len(self.prev_positions) == 4 and pos[0] == self.prev_positions[3][0]:
-            reward = -1.5
+            reward += -1.5
         
         if (np.any(new_pos < 0.0) or new_pos[1] > (40 - 1) or new_pos[0] > (20 -1)):
             #dist = np.linalg.norm(pos - target)
             #reward = (dist1 - dist2)
-            reward = -5.0
+            reward += -5.0
             return grid, reward, done, dist2
         
         # if (grid[new_pos[0],new_pos[1],0] == 1.0):
         #     return grid, reward, done, dist2
-        if (grid[new_pos[0],new_pos[1],3] == 1.0):
-            reward = -0.7
-            return grid, reward, done, dist2
+        
+        # surplus
+        if (grid[new_pos[0],new_pos[1],0] == 255.0):
+            reward += -0.7
+        
+        # obs
         elif (grid[new_pos[0],new_pos[1],0] == 1.0):
-            reward = -2.0
+            reward += -2.0
             return grid, reward, done, dist2
         
         new_grid[pos[0],pos[1],1] = 0.0
         new_grid[new_pos[0],new_pos[1],1] = self.scale*1.0
+        
         if ((new_pos[0] == target[0]) and (new_pos[1] == target[1])):
             print("good")
-            reward = 10.0
+            reward += 100.0
             done = True
         #dist = np.linalg.norm(new_pos - target)
         #reward = (dist1 - dist2)

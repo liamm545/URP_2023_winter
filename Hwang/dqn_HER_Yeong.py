@@ -21,9 +21,9 @@ class DQN_HER:
         self.env = env
         [Sdim,Adim] = env.get_dims()
         # pooling
-        self.model = ConvNet(Sdim[0],Sdim[1],4,Adim).cuda()
+        self.model = ConvNet(Sdim[0],Sdim[1],3,Adim).cuda()
         # no pooling
-        self.model = ConvNet_noPool(Sdim[0],Sdim[1],4,Adim).cuda()
+        self.model = ConvNet_noPool(Sdim[0],Sdim[1],3,Adim).cuda()
         self.target_model = copy.deepcopy(self.model).cuda()
         self.her = HER()
         self.gamma = gamma
@@ -60,7 +60,8 @@ class DQN_HER:
         sum_r = 0
         mean_loss = mean_val()
         min_dist = 100000
-        max_t = 50 
+        max_t = 50
+        
         ############################################
         trajectory = [obs]
         ############################################
@@ -75,6 +76,7 @@ class DQN_HER:
             else:
                 action = torch.argmax(Q,dim=1)
             ############################################
+            
             new_obs, reward, done, dist = self.env.step(obs,action.item())
             new_state = self.env.get_tensor(new_obs)
             sum_r = sum_r + reward
@@ -187,22 +189,22 @@ class DQN_HER:
     ##################################
     plt.ion()
     def visualize_episode(self, trajectory):
-        img = np.zeros((20, 40, 4), dtype=np.uint8)
-        img[:, :, 3] = 255
+        img = np.zeros((20, 40, 3), dtype=np.uint8)
+        # img[:, :, 3] = 255
         
-        img[trajectory[0][:, :, 0] == 1.0] = [255, 0, 0,255]  #장애물
+        img[trajectory[0][:, :, 0] == 1.0] = [255, 0, 0]  #장애물
 
-        img[trajectory[0][:, :, 3] == 1.0] = [255, 0, 255,255]  #surplus
+        img[trajectory[0][:, :, 0] == 255.0] = [255, 0, 255]  #surplus
 
         for obs in trajectory:
             pos = np.argwhere(obs[:, :, 1] == 10.0)[0]
-            img[pos[0], pos[1]] = [255, 255, 0,255]  #이동 경로
+            img[pos[0], pos[1]] = [255, 255, 0]  #이동 경로
         
         initial = np.argwhere(trajectory[0][:, :, 1] == self.env.scale)[0]
-        img[initial[0], initial[1]] = [0, 255, 0,255]  #시작 위치
+        img[initial[0], initial[1]] = [0, 255, 0]  #시작 위치
         
         target = np.argwhere(trajectory[0][:, :, 2] == self.env.scale)[0]
-        img[target[0], target[1]] = [0, 0, 255,255]  #목표 위치
+        img[target[0], target[1]] = [0, 0, 255]  #목표 위치
 
         plt.imshow(img)
         plt.pause(0.1)

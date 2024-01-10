@@ -28,7 +28,7 @@ gamma = 0.99
 buffer_size = 1000000
 ddqn = True
 alg = DQN_HER(env, gamma, buffer_size, ddqn)
-epochs = 50000
+epochs = 30000
 distances = deque(maxlen=100)
 
 n_data = 400
@@ -47,8 +47,8 @@ for i in range(epochs):
     print('done: {} of {}. loss: {}. success rate: {}. time: {}'.format(i,epochs,np.round(log.get_current('avg_loss'),2),np.round(np.mean(Y),2),np.round(T2-T1,3)))
     
     if (i % 100) == 0:
-        torch.save(alg.model.state_dict(),'model_pp.pt')
-        torch.save(alg.image_mean, 'norm_pp.pt')
+        torch.save(alg.model.state_dict(),'./pt_files/model_qq.pt')
+        torch.save(alg.image_mean, './pt_files/norm_qq.pt')
 
 
 Y = np.asarray(log.get_log('final_dist'))

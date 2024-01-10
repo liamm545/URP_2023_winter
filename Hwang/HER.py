@@ -32,5 +32,3 @@ class HER:
                 self.buffer[-1-i][2] = 0.0
                 self.buffer[-1-i][4] = True
         return self.buffer
-        
-        

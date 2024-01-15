@@ -23,28 +23,28 @@ from copy import deepcopy as dc
 # plt.show()0
 
 
-grid = np.zeros((200,400,3))
+# grid = np.zeros((200,400,3))
 
-cv2.line(grid, (0,0),(400,200), (1, 0, 0), 1)
+# cv2.line(grid, (0,0),(400,200), (1, 0, 0), 1)
 
-# # (0, 0) 위치에 빨간색 점 찍기
-# grid[0, 0] = [1, 0, 0]  # BGR 순서이므로 빨간색은 (0, 0, 255)
+# # # (0, 0) 위치에 빨간색 점 찍기
+# # grid[0, 0] = [1, 0, 0]  # BGR 순서이므로 빨간색은 (0, 0, 255)
 
-# # (1, 0) 위치에 파란색 점 찍기
-# grid[1, 0] = [255, 0, 0]  # BGR 순서이므로 파란색은 (255, 0, 0)
+# # # (1, 0) 위치에 파란색 점 찍기
+# # grid[1, 0] = [255, 0, 0]  # BGR 순서이므로 파란색은 (255, 0, 0)
 
-grid_extra = dc(grid)
+# grid_extra = dc(grid)
 
-cv2.line(grid_extra, (1,0),(401,200), (255, 0, 0), 1)
+# cv2.line(grid_extra, (1,0),(401,200), (255, 0, 0), 1)
 
-print(grid_extra[0,0][0])
+# print(grid_extra[0,0][0])
 
-print(grid_extra[1,0][0])
+# print(grid_extra[1,0][0])
 
-print(grid_extra[0,1][0])
+# print(grid_extra[0,1][0])
 
-print(grid[0,0,1])
+# print(grid[0,0,1])
 
-cv2.imshow("a",grid)
-cv2.imshow("b",grid_extra)
-cv2.waitKey()
+# cv2.imshow("a",grid)
+# cv2.imshow("b",grid_extra)
+# cv2.waitKey()

@@ -48,6 +48,7 @@ class DQN_HER:
         self.image_std = 0
         self.ddqn = ddqn
         
+        self.previous_action = 2
         self.replay_buffer = deque(maxlen=buffer_size)
         
     def run_episode(self, i):
@@ -60,25 +61,46 @@ class DQN_HER:
         sum_r = 0
         mean_loss = mean_val()
         min_dist = 100000
-        max_t = 50
+        max_t = 90
+        previous_action = self.previous_action
         
         ############################################
         trajectory = [obs]
         trajectory2 = [obs]
         ############################################
-        
+
         for t in range(max_t):
             self.steps += 1
             self.eps = self.epsi_low + (self.epsi_high-self.epsi_low) * (np.exp(-1.0 * self.steps/self.decay))
             Q = self.model(self.norm(state.cuda()))
             num = np.random.rand()
+
             if (num < self.eps):
-                action = torch.randint(0,Q.shape[1],(1,)).type(torch.LongTensor)
+                # action = torch.randint(0,Q.shape[1],(1,)).type(torch.LongTensor)
+                possible_actions = []
+                if previous_action == 0:
+                    possible_actions = [0, 1]
+                elif previous_action == 1:
+                    possible_actions = [0, 1, 2]
+                elif previous_action == 2:
+                    possible_actions = [1, 2, 3]
+                elif previous_action == 3:
+                    possible_actions = [2, 3, 4]
+                elif previous_action == 4:
+                    possible_actions = [3, 4]
+
+                action = np.random.choice(possible_actions)
+                action = torch.LongTensor([action])
+
             else:
                 action = torch.argmax(Q,dim=1)
             ############################################
             
-            new_obs, reward, done, dist, car_grid, crack = self.env.step(obs,action.item())
+            # print("previous :",previous_action,"current :",action)
+
+            new_obs, reward, done, dist, car_grid, crack = self.env.step(obs,action.item(),previous_action)
+            previous_action = action.item()
+
             if not crack:
                 Print = True
                 trajectory2.append(car_grid)
@@ -110,7 +132,7 @@ class DQN_HER:
                 
                 
         ##################################
-        if i % 10 ==0:
+        if i % 2 ==0:
             self.visualize_episode(trajectory, trajectory2)
         ##################################
 
@@ -128,17 +150,34 @@ class DQN_HER:
         state = self.env.get_tensor(obs)
         sum_r = 0
         min_dist = 100000
-        max_t = 50
+        max_t = 90
+        previous_action = self.previous_action
 
         for t in range(max_t):
             self.eps = 1.0
             Q = self.model(state.cuda())
             num = np.random.rand()
             if (num < self.eps):
-                action = torch.randint(0,Q.shape[1],(1,)).type(torch.LongTensor)
+                # action = torch.randint(0,Q.shape[1],(1,)).type(torch.LongTensor)
+                possible_actions = []
+                if previous_action == 0:
+                    possible_actions = [0, 1]
+                elif previous_action == 1:
+                    possible_actions = [0, 1, 2]
+                elif previous_action == 2:
+                    possible_actions = [1, 2, 3]
+                elif previous_action == 3:
+                    possible_actions = [2, 3, 4]
+                elif previous_action == 4:
+                    possible_actions = [3, 4]
+
+                action = np.random.choice(possible_actions)
+                action = torch.LongTensor([action])
             else:
                 action = torch.argmax(Q,dim=1)
-            new_obs, reward, done, dist, _, _ = self.env.step(obs,action.item())
+            new_obs, reward, done, dist, _, _ = self.env.step(obs,action.item(),previous_action)
+            previous_action = action.item()
+
             new_state = self.env.get_tensor(new_obs)
             sum_r = sum_r + reward
             if dist < min_dist:
@@ -221,7 +260,7 @@ class DQN_HER:
         # _, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
 
         # 첫번째 모델 Visualization
-        img_1 = np.zeros((20, 40, 3), dtype=np.uint8)
+        img_1 = np.zeros((40, 40, 3), dtype=np.uint8)
         img_1[trajectory_1[0][:, :, 0] == 1.0] = [255, 0, 0]  # 장애물 red 
         img_1[trajectory_1[0][:, :, 0] == 2.0] = [255, 255, 255]  # 차선 white
         img_1[trajectory_1[0][:, :, 0] == 255.0] = [255, 0, 255]  #surplus pink
@@ -242,7 +281,7 @@ class DQN_HER:
         plt.title('Model 1')
 
         # 차가 지나간 자리 visualization
-        img_2 = np.zeros((20, 40, 3), dtype=np.uint8)
+        img_2 = np.zeros((40, 40, 3), dtype=np.uint8)
         img_2[trajectory_2[0][:, :, 0] == 1.0] = [255, 0, 0]  # 장애물 red
         img_2[trajectory_2[0][:, :, 0] == 2.0] = [255, 255, 255] # 차선 white
         img_2[trajectory_1[0][:, :, 0] == 255.0] = [255, 0, 255]  #surplus pink

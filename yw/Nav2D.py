@@ -46,6 +46,7 @@ class Navigate2D:
         self.Rmin = Rmin
         self.state_dim = [self.W,self.H,3]
         self.action_dim = 5
+        self.real_scale = 20.0
         self.scale = 10.0
         self.consecutive_steps = 0
         self.prev_positions = deque(maxlen=4)
@@ -121,10 +122,20 @@ class Navigate2D:
         # 출발점 생성. 차선 안쪽에서 생성하도록
         start = (HEIGHT-1,int((left_start_x+right_start_x)/2))
         # start = (39,random.randint(int((left_start_x+right_start_x)/2)-2,int((left_start_x+right_start_x)/2)+2))
-        finish = (0,int((left_end_x+right_end_x)/2))
+        # finish = (0,int((left_end_x+right_end_x)/2))
+        
+        finish_range = range(int((left_end_x + right_end_x) / 2) - 2, int((left_end_x + right_end_x) / 2) + 3)
+        finish_points = [(0, x) for x in finish_range]
 
         grid[start[0],start[1],1] = self.scale*1.0
-        grid[finish[0],finish[1],2] = self.scale*1.0
+        # grid[finish[0],finish[1],2] = self.scale*1.0
+        
+        for point in finish_points:
+            if point[1] == int((left_end_x + right_end_x) / 2):
+                grid[point[0], point[1], 2] = self.real_scale*1.0
+            else:
+                grid[point[0], point[1], 2] = self.scale*1.0
+                
         done = False
 
         return grid, done
@@ -184,6 +195,7 @@ class Navigate2D:
 
         pos = np.argwhere(grid[:,:,1] == self.scale**1.0)[0]
         target = np.argwhere(grid[:,:,2] == self.scale*1.0)[0]
+        good_target = np.argwhere(grid[:,:,2] == self.real_scale*1.0)[0]
         new_pos = pos + act[action]
 
         dist = math.sqrt((new_pos[0]-target[0])**2+(new_pos[1]-target[1])**2)
@@ -229,9 +241,16 @@ class Navigate2D:
         new_grid[pos[0],pos[1],1] = 0.0
         new_grid[new_pos[0],new_pos[1],1] = self.scale*1.0
         
-        if ((new_pos[0] == target[0]) and (new_pos[1] == target[1])):
-            # print("good")
+        # finish 조건 완화
+        
+        if ((new_pos[0] == good_target[0]) and (new_pos[1] == good_target[1])):
+            print("really good")
             reward += 500.0
+            done = True
+            
+        elif ((new_pos[0] == target[0]) and (new_pos[1] == target[1])):
+            print("good")
+            reward += 200.0
             done = True
 
         return new_grid, reward, done, dist_out, car_grid, crack

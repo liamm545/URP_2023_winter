@@ -123,10 +123,17 @@ class Navigate2D:
         # 출발점 생성. 차선 안쪽에서 생성하도록
         start = (HEIGHT-1,int((left_start_x+right_start_x)/2))
         # start = (39,random.randint(int((left_start_x+right_start_x)/2)-2,int((left_start_x+right_start_x)/2)+2))
-        finish = (0,int((left_end_x+right_end_x)/2))
+        # finish = (0,int((left_end_x+right_end_x)/2))
+        
+        finish_range = range(int((left_end_x + right_end_x) / 2) - 2, int((left_end_x + right_end_x) / 2) + 2)
+        finish_points = [(0, x) for x in finish_range]
+        
 
         grid[start[0],start[1],1] = self.scale*1.0
-        grid[finish[0],finish[1],2] = self.scale*1.0
+        # grid[finish[0],finish[1],2] = self.scale*1.0
+        
+        for point in finish_points:
+            grid[point[0], point[1], 2] = self.scale*1.0
         done = False
 
         return grid, done

@@ -61,7 +61,7 @@ class DQN_HER:
         sum_r = 0
         mean_loss = mean_val()
         min_dist = 100000
-        max_t = 90
+        max_t = 80
         previous_action = self.previous_action
         
         ############################################
@@ -132,7 +132,7 @@ class DQN_HER:
                 
                 
         ##################################
-        if i % 2 ==0:
+        if i % 20 ==0:
             self.visualize_episode(trajectory, trajectory2)
         ##################################
 
@@ -150,7 +150,7 @@ class DQN_HER:
         state = self.env.get_tensor(obs)
         sum_r = 0
         min_dist = 100000
-        max_t = 90
+        max_t = 80
         previous_action = self.previous_action
 
         for t in range(max_t):
@@ -284,7 +284,7 @@ class DQN_HER:
         img_2 = np.zeros((40, 40, 3), dtype=np.uint8)
         img_2[trajectory_2[0][:, :, 0] == 1.0] = [255, 0, 0]  # 장애물 red
         img_2[trajectory_2[0][:, :, 0] == 2.0] = [255, 255, 255] # 차선 white
-        img_2[trajectory_1[0][:, :, 0] == 255.0] = [255, 0, 255]  #surplus pink
+        img_2[trajectory_2[0][:, :, 0] == 255.0] = [255, 0, 255]  #surplus pink
         
         for cars in trajectory_2 :
             car_pos = np.where((cars[:,:,1]==255) & (cars[:,:,2]==255))
@@ -294,6 +294,12 @@ class DQN_HER:
                 img_2[car[0], car[1]] = [0,255,255]
             img_2[pos[0], pos[1]] = [255, 0, 255] # 마지막위치
             
+        initial = np.argwhere(trajectory_2[0][:, :, 1] == self.env.scale)[0]
+        img_2[initial[0], initial[1]] = [0, 255, 0]  # 시작 위치
+            
+        target = np.argwhere(trajectory_2[0][:, :, 2] == self.env.scale)[0]
+        img_2[target[0], target[1]] = [0, 0, 255]  # 목표 위치
+        
         plt.subplot(1, 2, 2)
         plt.imshow(img_2)
         plt.title('Model 2')

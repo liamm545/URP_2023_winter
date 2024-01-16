@@ -17,6 +17,11 @@ from collections import deque
 
 # 변수들
 
+# PIXEL WIDTH
+WIDTH = 40
+# PIXEL HEIGHT
+HEIGHT = 40
+
 # 좌,우 차선 중심점
 LEFT_POINT = (9, 19)
 RIGHT_POINT = (29, 19)
@@ -36,8 +41,8 @@ LANE_SURPLUS = 1
 
 class Navigate2D:
     def __init__(self,Nobs,Dobs,Rmin):
-        self.W = 40
-        self.H = 40
+        self.W = WIDTH
+        self.H = HEIGHT
         self.Nobs = Nobs
         self.Dobs = Dobs
         self.Rmin = Rmin
@@ -46,6 +51,7 @@ class Navigate2D:
         self.scale = 10.0
         self.consecutive_steps = 0
         self.prev_positions = deque(maxlen=4)
+        self.over_lane = 0
         
     def get_dims(self):
         return self.state_dim, self.action_dim
@@ -58,23 +64,24 @@ class Navigate2D:
 
         # 차선 생성
         left_start_x = int(LEFT_POINT[0] - LEFT_POINT[0] / self.slope)
-        left_start_y = 39
+        left_start_y = HEIGHT - 1
 
         left_end_x = int(LEFT_POINT[0] + LEFT_POINT[0] / self.slope)
         left_end_y = 0
         
-        right_start_x = left_start_x + 20
-        right_start_y = 39
-
-        right_end_x = left_end_x + 20
+        right_start_x = left_start_x + int(WIDTH / 2)
+        right_start_y = HEIGHT - 1
+        
+        right_end_x = left_end_x + int(WIDTH / 2)
         right_end_y = 0
         
         self.consecutive_steps = 0
-        self.prev_pos = None
+        # self.prev_pos = None
         
         # 차선 draw
         cv2.line(grid, (left_end_x,left_end_y),(left_start_x,left_start_y),
                  (2, 0, 0), LANE_WIDTH)
+        
         cv2.line(grid, (right_end_x,right_end_y),(right_start_x, right_start_y), 
                  (2, 0, 0), LANE_WIDTH)
 
@@ -114,7 +121,7 @@ class Navigate2D:
                     (255, 0, 0), LANE_SURPLUS)
         
         # 출발점 생성. 차선 안쪽에서 생성하도록
-        start = (39,int((left_start_x+right_start_x)/2))
+        start = (HEIGHT-1,int((left_start_x+right_start_x)/2))
         # start = (39,random.randint(int((left_start_x+right_start_x)/2)-2,int((left_start_x+right_start_x)/2)+2))
         finish = (0,int((left_end_x+right_end_x)/2))
 
@@ -172,7 +179,7 @@ class Navigate2D:
         
         done = False
         crack = False
-        over_lane = False
+        over_lane = self.over_lane
         
         reward = -1
         # act = np.array([[1,0],[0,1],[-1,0],[0,-1]])
@@ -205,23 +212,31 @@ class Navigate2D:
         if (np.any(new_pos < 0.0) or new_pos[1] > (39.0)):
             #dist = np.linalg.norm(pos - target)
             #reward = (dist1 - dist2)
-            reward += -15.0
+            reward += -1.5
             return grid, reward, done, dist_out, car_grid, crack
         
         for car in car_pos :
             # 패딩 부분 밟으면 감점하고 이동
-            if grid[new_pos[0],new_pos[1],0] == 255.0:
-                reward += -1.5
-
+            # if grid[new_pos[0],new_pos[1],0] == 255.0:
+            #     reward += -1.5
+            if new_grid[car[0],car[1],0] == 255.0:
+                reward += -2.0
+            
             # 차선 밟으면 감점하고 이동
             elif new_grid[car[0],car[1],0] == 2.0 : 
+                # if over_lane == 0:
+                #     reward += -15.0
+                #     self.over_lane = 1
+
+                # elif over_lane == 1:
+                    
+                #     self.over_lane = 0
                 reward += -5.0
-                over_lane = True
 
             # 장애물 부딪히면 학습 종료
             elif new_grid[car[0],car[1],0] == 1.0:
                 crack = True
-                reward += -15.0
+                reward += -5.0
                 return grid, reward, done, dist_out, car_grid, crack
             
         new_grid[pos[0],pos[1],1] = 0.0

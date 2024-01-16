@@ -185,16 +185,7 @@ class Navigate2D:
         pos = np.argwhere(grid[:,:,1] == self.scale**1.0)[0]
         target = np.argwhere(grid[:,:,2] == self.scale*1.0)[0]
         new_pos = pos + act[action]
-        # action = np.clip(action, 0, 3)
 
-        # Check if action index is valid
-        # if action < 0 or action >= len(act):
-        #     raise ValueError(f"Invalid action index: {action}. Action index should be between 0 and {len(act) - 1}.")
-        
-        # new_pos = pos + act[action]
-        
-        # dist1 = np.linalg.norm(pos - target)
-        # dist2 = np.linalg.norm(new_pos - target)
         dist = math.sqrt((new_pos[0]-target[0])**2+(new_pos[1]-target[1])**2)
         dist_out = np.linalg.norm(new_pos - target)
 
@@ -244,21 +235,6 @@ class Navigate2D:
             done = True
 
         return new_grid, reward, done, dist_out, car_grid, crack
-
-        # if (np.any(new_pos < 0.0) or new_pos[1] > (40 - 1) or new_pos[0] > (20 -1) or (grid[new_pos[0],new_pos[1],0] == 1.0)):
-        #     #dist = np.linalg.norm(pos - target)
-        #     #reward = (dist1 - dist2)
-        #     return grid, reward, done, dist2
-        
-        # new_grid[pos[0],pos[1],1] = 0.0
-        # new_grid[new_pos[0],new_pos[1],1] = self.scale*1.0
-
-        # if ((new_pos[0] == target[0]) and (new_pos[1] == target[1])):
-        #     reward = 0.0
-        #     done = True
-        # #dist = np.linalg.norm(new_pos - target)
-        # #reward = (dist1 - dist2)
-        # return new_grid, reward, done, dist2
     
     def get_tensor(self,grid):
         S = torch.Tensor(grid).transpose(2,1).transpose(1,0).unsqueeze(0)

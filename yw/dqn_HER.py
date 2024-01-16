@@ -17,57 +17,6 @@ from log_utils import logger, mean_val
 from HER import HER
 from copy import deepcopy as dc
 
-class EpisodeMemory():
-    """Episode memory for recurrent agent"""
-
-    def __init__(self, random_update=False,
-                 max_epi_num=100, max_epi_len=500,
-                 batch_size=1,
-                 lookup_step=None):
-        self.random_update = random_update  # if False, sequential update
-        self.max_epi_num = max_epi_num
-        self.max_epi_len = max_epi_len
-        self.batch_size = batch_size
-        self.lookup_step = lookup_step
-
-        if (random_update is False) and (self.batch_size > 1):
-            sys.exit(
-                'It is recommended to use 1 batch for sequential update. If you want, erase this code block and modify code')
-
-        self.memory = deque(maxlen=self.max_epi_num)
-
-    def put(self, episode):
-        self.memory.append(episode)
-
-    def sample(self):
-        sampled_buffer = []
-
-        ##################### RANDOM UPDATE ############################
-        if self.random_update:  # Random update
-            sampled_episodes = random.sample(self.memory, self.batch_size)
-
-            check_flag = True  # check if every sample data to train is larger than batch size
-            min_step = self.max_epi_len
-
-            for episode in sampled_episodes:
-                min_step = min(min_step, len(episode))  # get the minimum step from sampled episodes
-
-            for episode in sampled_episodes:
-                if min_step > self.lookup_step:  # sample buffer with lookup_step size
-                    idx = np.random.randint(0, len(episode) - self.lookup_step + 1)
-                    sample = episode.sample(random_update=self.random_update, lookup_step=self.lookup_step, idx=idx)
-                    sampled_buffer.append(sample)
-                else:
-                    idx = np.random.randint(0, len(episode) - min_step + 1)  # sample buffer with minstep size
-                    sample = episode.sample(random_update=self.random_update, lookup_step=min_step, idx=idx)
-                    sampled_buffer.append(sample)
-
-        ##################### SEQUENTIAL UPDATE ############################
-        else:  # Sequential update
-            idx = np.random.randint(0, len(self.memory))
-            sampled_buffer.append(self.memory[idx].sample(random_update=self.random_update))
-
-        return sampled_buffer, len(sampled_buffer[0]['obs'])  # buffers, sequence_length
 
 
 class DQN_HER:
@@ -75,35 +24,14 @@ class DQN_HER:
         self.env = env
         [Sdim,Adim] = env.get_dims()
 
-        # pooling
-        # self.model = ConvNet(Sdim[0],Sdim[1],3,Adim).cuda()
-
-        # no pooling
-        # self.model = ConvNet_noPool(Sdim[0],Sdim[1],3,Adim).cuda()
-
-        #lstm
-        # self.model = ConvNet_withLSTM(Sdim[0],Sdim[1],3,Adim,lstm_hidden_size=128, lstm_num_layers=1).cuda()
-
-        # self.target_model = copy.deepcopy(self.model).cuda()
         self.her = HER()
         self.gamma = gamma
         self.random_update = random_update
         self.memory = collections.deque(maxlen=buffer_size)
-        # self.optimizer = torch.optim.Adam(self.model.parameters(),lr=0.0001)
-
-
 
         #############################################################
-        # Create Q functions
-        # Assuming Navigate2D has an attribute named 'observation_space'
-        # image_height, image_width, num_channels = env.observation_space
-
         self.model = ConvNet_withLSTM(Sdim[0],Sdim[1],3,Adim,lstm_hidden_size=128, lstm_num_layers=1).cuda()
         self.target_model = ConvNet_withLSTM(Sdim[0],Sdim[1],3,Adim,lstm_hidden_size=128, lstm_num_layers=1).cuda()
-                                         
-        # self.Q = ConvNet_withLSTM(state_space=env.observation_space.shape[0]-2,
-        #                           action_space=env.action_space.n).cuda()
-        # self.Q_target = ConvNet_withLSTM(state_space=env.observation_space.shape[0]-2,action_space=env.action_space.n).cuda()
         self.target_model.load_state_dict(self.model.state_dict())
 
         # Set optimizer
@@ -118,12 +46,6 @@ class DQN_HER:
         self.min_epi_num = 100
         self.target_update_period = 10  # You may adjust this based on your requirements
         self.tau = 0.001  # Soft update parameter
-
-        # # Episode memory
-        # self.episode_memory = EpisodeMemory(random_update=True,
-        #                                     max_epi_num=100, max_epi_len=600,
-        #                                     batch_size=self.batch_size,
-        #                                     lookup_step=self.lookup_step)     
 
         ##############################################################   
 
@@ -151,9 +73,6 @@ class DQN_HER:
         self.previous_action = 2
         self.replay_buffer = deque(maxlen=buffer_size)
 
-    # def update_target_model(self):
-    #     for target_param, local_param in zip(self.Q_target.parameters(), self.Q.parameters()):
-    #         target_param.data.copy_(self.tau * local_param.data + (1.0 - self.tau) * target_param.data)
     def sample_buffer(self):
         sampled_buffer = []
 
@@ -285,15 +204,6 @@ class DQN_HER:
             if (t+1) == max_t:
                 done = True
 
-            # new_obs, reward, done, dist = self.env.step(obs, action.item())
-            # new_state = self.env.get_tensor(new_obs)
-            # sum_r = sum_r + reward
-
-            # if dist < min_dist:
-            #     min_dist = dist
-            # if (t + 1) == max_t:
-            #     done = True
-
             self.replay_buffer.append([dc(state.squeeze(0).numpy()),dc(action),dc(reward),dc(new_state.squeeze(0).numpy()),dc(done)])
             self.her.keep([state.squeeze(0).numpy(),action,reward,new_state.squeeze(0).numpy(),done])
             loss = self.update_model()
@@ -331,76 +241,6 @@ class DQN_HER:
             self.train_drqn(sampled_buffer)
 
         return self.log
-    
-    # def run_episode(self, i):
-    #     self.her.reset()
-    #     obs, done = self.env.reset()
-    #     done = False
-
-    #     #EpisodeBuffer
-
-    #     state = self.env.get_tensor(obs)
-    #     sum_r = 0
-    #     mean_loss = mean_val()
-    #     min_dist = 100000
-    #     max_t = 50 
-    #     ############################################
-    #     trajectory = [obs]
-    #     ############################################
-        
-    #     for t in range(max_t):
-
-    #         self.steps += 1
-    #         self.eps = self.epsi_low + (self.epsi_high-self.epsi_low) * (np.exp(-1.0 * self.steps/self.decay))
-    #         Q = self.model(self.norm(state.cuda()))
-    #         num = np.random.rand()
-
-    #         if (num < self.eps):
-    #             action = torch.randint(0,Q.shape[1],(1,)).type(torch.LongTensor)
-    #         else:
-    #             action = torch.argmax(Q,dim=1)
-            
-    #         # Do action
-    #         new_obs, reward, done, dist = self.env.step(obs,action.item())
-
-    #         new_state = self.env.get_tensor(new_obs)
-    #         sum_r = sum_r + reward
-            
-    #         if dist < min_dist:
-    #             min_dist = dist
-    #         if (t+1) == max_t:
-    #             done = True
-            
-    #         self.replay_buffer.append([dc(state.squeeze(0).numpy()),dc(action),dc(reward),dc(new_state.squeeze(0).numpy()),dc(done)])
-    #         self.her.keep([state.squeeze(0).numpy(),action,reward,new_state.squeeze(0).numpy(),done])
-    #         loss = self.update_model()
-    #         mean_loss.append(loss)
-    #         state = dc(new_state)
-    #         obs = dc(new_obs)
-            
-    #         ############################################
-    #         trajectory.append(new_obs)
-    #         ############################################
-            
-    #         self.step_counter = self.step_counter + 1
-    #         if (self.step_counter > self.update_target_step):
-    #             self.target_model.load_state_dict(self.model.state_dict())
-    #             self.step_counter = 0
-    #             print('updated target model')
-                
-                
-    #     ##################################
-    #     if i % 2 ==0:
-    #         self.visualize_episode(trajectory)        
-    #     ##################################
-
-    #     her_list = self.her.backward()
-
-    #     for item in her_list:
-    #         self.replay_buffer.append(item)
-    #     self.log.add_item('tot_return',sum_r)
-    #     self.log.add_item('avg_loss',mean_loss.get())
-    #     self.log.add_item('final_dist',min_dist)
         
     def gather_data(self):
         self.her.reset()

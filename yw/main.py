@@ -50,16 +50,11 @@ for i in range(epochs):
     Y[Y > 1] = 1.0
     Y = 1 - Y
     print('done: {} of {}. loss: {}. success rate: {}. time: {}'.format(i,epochs,np.round(log.get_current('avg_loss'),2),np.round(np.mean(Y),2),np.round(T2-T1,3)))
-    
-    # alg.model.train_episodes(optimizer=your_optimizer, loss_function=your_loss_function)
 
 
     if (i % 100) == 0:
         torch.save(alg.model.state_dict(),'model.pt')
         torch.save(alg.image_mean, 'norm.pt')
-
-# if __name__ == "__main__":
-#     main()
 
 Y = np.asarray(log.get_log('final_dist'))
 Y2 = smooth(Y)

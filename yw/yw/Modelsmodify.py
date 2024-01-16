@@ -140,9 +140,5 @@ class ConvNet_withLSTM(torch.nn.Module):
         lstm_out = lstm_out[:, -1, :]
         output = self.fc2(lstm_out)
 
-        # if episode_buffer is not None:
-        #     # If an episode buffer is provided, store the current observation in the buffer
-        #     episode_buffer.put(dc(x.squeeze(0).numpy()))
-
         return output
     

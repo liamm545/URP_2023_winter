@@ -230,7 +230,10 @@ class DQN_HER:
 
         for item in her_list:
             self.replay_buffer.append(item)
-
+        
+        if min_dist <= 3.0:
+            min_dist = 0.0
+        
         self.log.add_item('tot_return', sum_r)
         self.log.add_item('avg_loss', mean_loss.get())
         self.log.add_item('final_dist', min_dist)

@@ -203,7 +203,7 @@ class Navigate2D:
         new_pos = pos + act[action]
 
         # dist = math.sqrt((new_pos[0]-target[0])**2+(new_pos[1]-target[1])**2)
-        dist_out = np.linalg.norm(new_pos - target)
+        dist_out = np.linalg.norm(new_pos - good_target)
 
         yaw = self.det_yaw(act[action])
         #reward = (dist1 - dist2)*(max_norm - dist2)

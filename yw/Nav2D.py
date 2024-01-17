@@ -91,9 +91,8 @@ class Navigate2D:
             # 장애물의 y 중심 생성
             ################ => trigger range 고려해서 수정
             center_y = random.randint(7,33)
-
             # 선택한 y값 기준 직선 안쪽에 있는 경계들 중에서 랜덤으로 x값 생성
-            x_1 , x_2 = min(np.argwhere(grid[center_y,:,0] == 2)+3), max(np.argwhere(grid[center_y,:,0] == 2)-3)
+            x_1 , x_2 = (min(np.argwhere(grid[center_y,:,0] == 2))+2)[0], (max(np.argwhere(grid[center_y,:,0] == 2))-2)[0]
             # print("z: ",np.argwhere(grid[center_y,:,0] == 2),"x1 : ",x_1, "x2 : ",x_2)
             center_x = random.randint(min(x_1,x_2), max(x_1,x_2))
 
@@ -124,7 +123,7 @@ class Navigate2D:
         # start = (39,random.randint(int((left_start_x+right_start_x)/2)-2,int((left_start_x+right_start_x)/2)+2))
         # finish = (0,int((left_end_x+right_end_x)/2))
         
-        finish_range = range(int((left_end_x + right_end_x) / 2) - 2, int((left_end_x + right_end_x) / 2) + 3)
+        finish_range = range(int((left_end_x + right_end_x) / 2) - 3, int((left_end_x + right_end_x) / 2) + 4)
         finish_points = [(0, x) for x in finish_range]
         
         grid[start[0],start[1],1] = self.scale*1.0

@@ -156,7 +156,7 @@ class DQN_HER:
         sum_r = 0
         mean_loss = mean_val()
         min_dist = 100000
-        max_t = 50 
+        max_t = 80
         trajectory = [obs]
         previous_action = self.previous_action
 
@@ -349,8 +349,13 @@ class DQN_HER:
         initial = np.argwhere(trajectory_1[0][:, :, 1] == self.env.scale)[0]
         img_1[initial[0], initial[1]] = [0, 255, 0]  # 시작 위치
 
-        target = np.argwhere(trajectory_1[0][:, :, 2] == self.env.scale)[0]
-        img_1[target[0], target[1]] = [0, 0, 255]  # 목표 위치
+        target = np.argwhere(trajectory_1[0][:, :, 2] == self.env.scale)
+        for t in target:
+            img_1[t[0],t[1]] = [0,50,255]
+
+        
+        target_1 = np.argwhere(trajectory_1[0][:, :, 2] == self.env.real_scale)[0]
+        img_1[target_1[0], target_1[1]] = [0, 0, 255]  # 목표 위치
 
         plt.subplot(1, 2, 1)
         plt.imshow(img_1)
@@ -372,9 +377,13 @@ class DQN_HER:
             
         initial = np.argwhere(trajectory_2[0][:, :, 1] == self.env.scale)[0]
         img_2[initial[0], initial[1]] = [0, 255, 0]  # 시작 위치
-            
-        target = np.argwhere(trajectory_2[0][:, :, 2] == self.env.scale)[0]
-        img_2[target[0], target[1]] = [0, 0, 255]  # 목표 위치
+        
+        target = np.argwhere(trajectory_1[0][:, :, 2] == self.env.scale)
+        for t in target:
+            img_2[t[0],t[1]] = [0,50,255]
+
+        target_1 = np.argwhere(trajectory_1[0][:, :, 2] == self.env.real_scale)[0]
+        img_2[target_1[0], target_1[1]] = [0, 0, 255]  # 목표 위치
         
         plt.subplot(1, 2, 2)
         plt.imshow(img_2)

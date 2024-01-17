@@ -234,12 +234,12 @@ class Navigate2D:
                 # elif over_lane == 1:
                     
                 #     self.over_lane = 0
-                reward += -5.0
+                reward += -10.0
 
             # 장애물 부딪히면 학습 종료
             elif new_grid[car[0],car[1],0] == 1.0:
                 crack = True
-                reward += -5.0
+                reward += -10.0
                 return grid, reward, done, dist_out, car_grid, crack
             
         new_grid[pos[0],pos[1],1] = 0.0
@@ -247,13 +247,13 @@ class Navigate2D:
         
         # finish 조건 완화
         if ((new_pos[0] == good_target[0]) and (new_pos[1] == good_target[1])):
-            print("really good")
+            # print("really good")
             reward += 500.0
             done = True
         
         elif any((new_pos == t).all() for t in target):
-            print("good")
-            reward += 200.0
+            # print("good")
+            reward += 300.0
             done = True
 
         return new_grid, reward, done, dist_out, car_grid, crack

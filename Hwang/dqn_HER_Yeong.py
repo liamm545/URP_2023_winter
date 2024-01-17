@@ -76,21 +76,21 @@ class DQN_HER:
             num = np.random.rand()
 
             if (num < self.eps):
-                # action = torch.randint(0,Q.shape[1],(1,)).type(torch.LongTensor)
-                possible_actions = []
-                if previous_action == 0:
-                    possible_actions = [0, 1]
-                elif previous_action == 1:
-                    possible_actions = [0, 1, 2]
-                elif previous_action == 2:
-                    possible_actions = [1, 2, 3]
-                elif previous_action == 3:
-                    possible_actions = [2, 3, 4]
-                elif previous_action == 4:
-                    possible_actions = [3, 4]
+                action = torch.randint(0,Q.shape[1],(1,)).type(torch.LongTensor)
+                # possible_actions = []
+                # if previous_action == 0:
+                #     possible_actions = [0, 1]
+                # elif previous_action == 1:
+                #     possible_actions = [0, 1, 2]
+                # elif previous_action == 2:
+                #     possible_actions = [1, 2, 3]
+                # elif previous_action == 3:
+                #     possible_actions = [2, 3, 4]
+                # elif previous_action == 4:
+                #     possible_actions = [3, 4]
 
-                action = np.random.choice(possible_actions)
-                action = torch.LongTensor([action])
+                # action = np.random.choice(possible_actions)
+                # action = torch.LongTensor([action])
 
             else:
                 action = torch.argmax(Q,dim=1)
@@ -142,6 +142,10 @@ class DQN_HER:
             self.replay_buffer.append(item)
         
         if min_dist <= 3.0:
+            if min_dist == 0.0:
+                print("really good!")
+            else:
+                print("good!")
             min_dist = 0.0    
         
         self.log.add_item('tot_return',sum_r)
@@ -163,21 +167,21 @@ class DQN_HER:
             Q = self.model(state.cuda())
             num = np.random.rand()
             if (num < self.eps):
-                # action = torch.randint(0,Q.shape[1],(1,)).type(torch.LongTensor)
-                possible_actions = []
-                if previous_action == 0:
-                    possible_actions = [0, 1]
-                elif previous_action == 1:
-                    possible_actions = [0, 1, 2]
-                elif previous_action == 2:
-                    possible_actions = [1, 2, 3]
-                elif previous_action == 3:
-                    possible_actions = [2, 3, 4]
-                elif previous_action == 4:
-                    possible_actions = [3, 4]
+                action = torch.randint(0,Q.shape[1],(1,)).type(torch.LongTensor)
+                # possible_actions = []
+                # if previous_action == 0:
+                #     possible_actions = [0, 1]
+                # elif previous_action == 1:
+                #     possible_actions = [0, 1, 2]
+                # elif previous_action == 2:
+                #     possible_actions = [1, 2, 3]
+                # elif previous_action == 3:
+                #     possible_actions = [2, 3, 4]
+                # elif previous_action == 4:
+                #     possible_actions = [3, 4]
 
-                action = np.random.choice(possible_actions)
-                action = torch.LongTensor([action])
+                # action = np.random.choice(possible_actions)
+                # action = torch.LongTensor([action])
             else:
                 action = torch.argmax(Q,dim=1)
             new_obs, reward, done, dist, _, _ = self.env.step(obs,action.item(),previous_action)
@@ -308,7 +312,7 @@ class DQN_HER:
             
         target = np.argwhere(trajectory_1[0][:, :, 2] == self.env.scale)
         for t in target:
-            img_2[t[0],t[1]] = [0,50,255]
+            img_2[t[0],t[1]] = [0,200,200]
 
         target_1 = np.argwhere(trajectory_1[0][:, :, 2] == self.env.real_scale)[0]
         img_2[target_1[0], target_1[1]] = [0, 0, 255]  # 목표 위치

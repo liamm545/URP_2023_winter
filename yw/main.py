@@ -32,7 +32,7 @@ alg = DQN_HER(env, gamma, buffer_size, ddqn)
 epochs = 50000
 distances = deque(maxlen=100)
 
-n_data = 400
+n_data = 1000
 
 
 for i in range(n_data):

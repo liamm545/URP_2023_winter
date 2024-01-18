@@ -139,6 +139,8 @@ class Navigate2D:
                 # print("point", point[0], point[1], grid[point[0], point[1], 2])
             else:
                 grid[point[0], point[1], 2] = self.scale*1.0
+                grid[point[0]-1, point[1], 2] = self.scale*1.0
+                grid[point[0]-2, point[1], 2] = self.scale*1.0
                 # print("1", point[0], point[1], grid[point[0], point[1], 2])
         done = False
 
@@ -234,7 +236,7 @@ class Navigate2D:
             
             # 차선 밟으면 감점하고 이동
             elif new_grid[car[0],car[1],0] == 2.0 : 
-                reward += -1.0
+                reward += -2.0
                 B = True
 
             if A or B:

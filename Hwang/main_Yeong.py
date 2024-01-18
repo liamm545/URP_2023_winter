@@ -31,8 +31,8 @@ ddqn = True
 alg = DQN_HER(env, gamma, buffer_size, ddqn)
 epochs = 50000
 distances = deque(maxlen=100)
+n_data = 1000
 
-n_data = 400
 for i in range(n_data):
     min_dist = alg.gather_data()  
     distances.append(min_dist)

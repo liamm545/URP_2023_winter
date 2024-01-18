@@ -238,7 +238,7 @@ class DQN_HER:
             else:
                 print("good!")
             min_dist = 0.0
-        
+        print("!!!dist :",min_dist)
         self.log.add_item('tot_return', sum_r)
         self.log.add_item('avg_loss', mean_loss.get())
         self.log.add_item('final_dist', min_dist)

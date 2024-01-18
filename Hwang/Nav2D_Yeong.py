@@ -223,7 +223,6 @@ class Navigate2D:
             # 장애물 부딪히면 학습 종료 -> 우선적으로 판별함
             if new_grid[car[0],car[1],0] == 1.0:
                 crack = True
-                done = True
                 reward += -1.0
                 return grid, reward, done, dist_out, car_grid, crack
         

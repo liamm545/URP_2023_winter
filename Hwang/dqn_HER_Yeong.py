@@ -61,7 +61,7 @@ class DQN_HER:
         sum_r = 0
         mean_loss = mean_val()
         min_dist = 100000
-        max_t = 70
+        max_t = 100
         previous_action = self.previous_action
         
         ############################################
@@ -160,7 +160,7 @@ class DQN_HER:
         state = self.env.get_tensor(obs)
         sum_r = 0
         min_dist = 100000
-        max_t = 70
+        max_t = 100
         previous_action = self.previous_action
 
         for t in range(max_t):

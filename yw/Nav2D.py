@@ -93,7 +93,7 @@ class Navigate2D:
             center_y = random.randint(15,27)
             # 선택한 y값 기준 직선 안쪽에 있는 경계들 중에서 랜덤으로 x값 생성
             x_1 , x_2 = (min(np.argwhere(grid[center_y,:,0] == 2))+2)[0], (max(np.argwhere(grid[center_y,:,0] == 2))-2)[0]
-            print("x_1",x_1,"x_2",x_2)
+            # print("x_1",x_1,"x_2",x_2)
             # print("z: ",np.argwhere(grid[center_y,:,0] == 2),"x1 : ",x_1, "x2 : ",x_2)
             center_x = random.randint(min(x_1,x_2), max(x_1,x_2))
 

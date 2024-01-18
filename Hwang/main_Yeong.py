@@ -20,7 +20,8 @@ from copy import deepcopy as dc
 from collections import deque
 
 
-Nobs = random.randint(1,3)
+# Nobs = random.randint(1,3)
+Nobs = 1
 Dobs = 3
 Rmin = 10
 env = Navigate2D(Nobs,Dobs,Rmin)
@@ -28,7 +29,7 @@ gamma = 0.99
 buffer_size = 1000000
 ddqn = True
 alg = DQN_HER(env, gamma, buffer_size, ddqn)
-epochs = 140000
+epochs = 50000
 distances = deque(maxlen=100)
 
 n_data = 400
@@ -42,13 +43,14 @@ for i in range(epochs):
     T2 = time.time()
     distances.append(log.get_current('final_dist'))
     Y = np.asarray(distances)
+    # print(Y)
     Y[Y > 1] = 1.0
     Y = 1 - Y
     print('done: {} of {}. loss: {}. success rate: {}. time: {}'.format(i,epochs,np.round(log.get_current('avg_loss'),2),np.round(np.mean(Y),2),np.round(T2-T1,3)))
     
     if (i % 100) == 0:
-        torch.save(alg.model.state_dict(),'./pt_files/model_qq.pt')
-        torch.save(alg.image_mean, './pt_files/norm_qq.pt')
+        torch.save(alg.model.state_dict(),'./pt_files/model_qqqq.pt')
+        torch.save(alg.image_mean, './pt_files/norm_qqqq.pt')
 
 
 Y = np.asarray(log.get_log('final_dist'))

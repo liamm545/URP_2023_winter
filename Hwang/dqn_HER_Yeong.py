@@ -61,7 +61,7 @@ class DQN_HER:
         sum_r = 0
         mean_loss = mean_val()
         min_dist = 100000
-        max_t = 80
+        max_t = 70
         previous_action = self.previous_action
         
         ############################################
@@ -136,6 +136,7 @@ class DQN_HER:
             self.visualize_episode(trajectory, trajectory2)
         ##################################
 
+        print("!!!!!!!!!!!!!!1reward :",sum_r)
         
         her_list = self.her.backward()
         for item in her_list:
@@ -159,7 +160,7 @@ class DQN_HER:
         state = self.env.get_tensor(obs)
         sum_r = 0
         min_dist = 100000
-        max_t = 80
+        max_t = 70
         previous_action = self.previous_action
 
         for t in range(max_t):
@@ -284,7 +285,7 @@ class DQN_HER:
 
         target = np.argwhere(trajectory_1[0][:, :, 2] == self.env.scale)
         for t in target:
-            img_1[t[0],t[1]] = [0,50,255]
+            img_1[t[0],t[1]] = [0,200,200]
 
         target_1 = np.argwhere(trajectory_1[0][:, :, 2] == self.env.real_scale)[0]
         img_1[target_1[0], target_1[1]] = [0, 0, 255]  # 목표 위치

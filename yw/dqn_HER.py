@@ -156,7 +156,7 @@ class DQN_HER:
         sum_r = 0
         mean_loss = mean_val()
         min_dist = 100000
-        max_t = 80
+        max_t = 70
         trajectory = [obs]
         previous_action = self.previous_action
 
@@ -223,11 +223,12 @@ class DQN_HER:
             if done : 
                 break
 #####################################################################
-        if i % 20 == 0:
-            self.visualize_episode(trajectory, trajectory2)
+        # if i % 20 == 0:
+        #     self.visualize_episode(trajectory, trajectory2)
 
+        print("!!!!!!!!!!!!!!1reward :",sum_r)
+        
         her_list = self.her.backward()
-
         for item in her_list:
             self.replay_buffer.append(item)
         
@@ -256,7 +257,7 @@ class DQN_HER:
         state = self.env.get_tensor(obs)
         sum_r = 0
         min_dist = 100000
-        max_t = 80
+        max_t = 70
         previous_action = self.previous_action
 
         for t in range(max_t):

@@ -135,8 +135,8 @@ class Navigate2D:
                 # print("point", point[0], point[1], grid[point[0], point[1], 2])
             else:
                 grid[point[0], point[1], 2] = self.scale*1.0
-                grid[point[0]-1, point[1], 2] = self.scale*1.0
-                grid[point[0]-2, point[1], 2] = self.scale*1.0
+                grid[point[0]+1, point[1], 2] = self.scale*1.0
+                grid[point[0]+2, point[1], 2] = self.scale*1.0
                 # print("1", point[0], point[1], grid[point[0], point[1], 2])
         done = False
 

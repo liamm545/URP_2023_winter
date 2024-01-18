@@ -219,7 +219,7 @@ class Navigate2D:
             # 장애물 부딪히면 학습 종료 -> 우선적으로 판별함
             if new_grid[car[0],car[1],0] == 1.0:
                 crack = True
-                reward += -5.0
+                reward += -1.0
                 return grid, reward, done, dist_out, car_grid, crack
         
         for car in car_pos :
@@ -230,7 +230,7 @@ class Navigate2D:
             
             # 차선 밟으면 감점하고 이동
             elif new_grid[car[0],car[1],0] == 2.0 : 
-                reward += -2.0
+                reward += -1.0
                 B = True
 
             if A or B:
@@ -242,13 +242,14 @@ class Navigate2D:
         # finish 조건 완화
         if ((new_pos[0] == good_target[0]) and (new_pos[1] == good_target[1])):
             # print("really good")
-            reward += 400.0
+            reward += 200.0
             done = True
         
         elif any((new_pos == t).all() for t in target):
             # print("good")
-            reward += 300.0
+            reward += 100.0
             done = True
+            
         return new_grid, reward, done, dist_out, car_grid, crack
     
     def get_tensor(self,grid):

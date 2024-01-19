@@ -197,6 +197,7 @@ class DQN_HER:
             if not crack:
                 Print = True
                 trajectory2.append(car_grid)
+
             new_state = self.env.get_tensor(new_obs)
             sum_r = sum_r + reward
             if dist < min_dist:
@@ -223,10 +224,16 @@ class DQN_HER:
             if done : 
                 break
 #####################################################################
-        # if i % 20 == 0:
-        #     self.visualize_episode(trajectory, trajectory2)
+        if i % 20 == 0:
+            self.visualize_episode(trajectory, trajectory2)
+        
+        # Train DRQN
+        if self.memory and len(self.replay_buffer) >= self.batch_size:
+            sampled_buffer, seq_len = self.sample_buffer()
+            self.train_drqn(sampled_buffer)
 
-        print("!!!!!!!!!!!!!!1reward :",sum_r)
+
+        print("!!!!!!!!!!!!!!reward :",sum_r)
         
         her_list = self.her.backward()
         for item in her_list:
@@ -242,11 +249,6 @@ class DQN_HER:
         self.log.add_item('tot_return', sum_r)
         self.log.add_item('avg_loss', mean_loss.get())
         self.log.add_item('final_dist', min_dist)
-        
-        # Train DRQN
-        if self.memory and len(self.replay_buffer) >= self.batch_size:
-            sampled_buffer, seq_len = self.sample_buffer()
-            self.train_drqn(sampled_buffer)
 
         return self.log
         

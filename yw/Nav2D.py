@@ -196,7 +196,7 @@ class Navigate2D:
         B = False
         
         done = False
-        crack = False
+        crack = False 
         # act = np.array([[1,0],[0,1],[-1,0],[0,-1]])
         act = np.array([[0,-1],[-1,-1],[-1,0],[-1,1],[0,1]])
 

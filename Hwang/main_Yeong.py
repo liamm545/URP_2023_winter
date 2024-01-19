@@ -49,8 +49,8 @@ for i in range(epochs):
     print('done: {} of {}. loss: {}. success rate: {}. time: {}'.format(i,epochs,np.round(log.get_current('avg_loss'),2),np.round(np.mean(Y),2),np.round(T2-T1,3)))
     
     if (i % 100) == 0:
-        torch.save(alg.model.state_dict(),'./pt_files/model_qqqq.pt')
-        torch.save(alg.image_mean, './pt_files/norm_qqqq.pt')
+        torch.save(alg.model.state_dict(),'./pt_files/model.pt')
+        torch.save(alg.image_mean, './pt_files/norm.pt')
 
 
 Y = np.asarray(log.get_log('final_dist'))

@@ -163,6 +163,9 @@ class DQN_HER:
         ############################################
         trajectory = [obs]
         trajectory2 = [obs]
+        coordinate_x = []
+        coordinate_y = []
+        coordinate_list = []
         ############################################
         
         for t in range(max_t):
@@ -224,14 +227,50 @@ class DQN_HER:
             if done : 
                 break
 #####################################################################
-        if i % 20 == 0:
-            self.visualize_episode(trajectory, trajectory2)
+        # linearized_trajectory = self.linearize_trajectory(trajectory)
+        linearized_trajectory = np.gradient(trajectory, axis=0)
+        # print(trajectory,"trajectory")
+        # print(linearized_trajectory,"linear")
         
         # Train DRQN
         if self.memory and len(self.replay_buffer) >= self.batch_size:
             sampled_buffer, seq_len = self.sample_buffer()
             self.train_drqn(sampled_buffer)
 
+        if i % 20 == 0:
+            self.visualize_episode(trajectory, trajectory2,linearized_trajectory)
+
+        for obs in trajectory:
+            pos = np.argwhere(obs[:, :, 1] == 10.0)[0]
+            coordinate = [pos[0],pos[1]]
+            coordinate_list.append(coordinate)
+            coordinate_x.append(pos[0])
+            coordinate_y.append(pos[1])
+
+        # if i % 20 == 0:
+        # # 데이터를 x와 y로 분리
+        #     # x, y = coordinate_list.T
+
+        #     # 1차 다항식으로 보간
+        #     coefficients = np.polyfit(coordinate_x, coordinate_y, 5)
+        #     poly = np.poly1d(coefficients)
+
+        #     # 보간 결과를 평가할 x 범위 설정
+        #     x_interpolated = np.linspace(min(coordinate_x), max(coordinate_x), 100)
+
+        #     # 다항식을 통한 보간 결과 계산
+        #     y_interpolated = poly(x_interpolated)
+        #     # print(coordinate_list)
+
+        #     plt.scatter(coordinate_x, coordinate_y, label='원래 좌표')
+        #     plt.plot(x_interpolated, y_interpolated, label='다항식 보간', color='red')
+            
+        #     # plt.legend()
+        #     # plt.show()
+
+        #     plt.subplot(1, 3, 3)
+        #     plt.show()
+        #     plt.title('polyfit')
 
         print("!!!!!!!!!!!!!!reward :",sum_r)
         
@@ -342,7 +381,7 @@ class DQN_HER:
 
     ##################################
     plt.ion()
-    def visualize_episode(self,trajectory_1, trajectory_2):
+    def visualize_episode(self,trajectory_1, trajectory_2,linearized_trajectory):
         # _, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
 
         # 첫번째 모델 Visualization
@@ -354,6 +393,7 @@ class DQN_HER:
         for obs in trajectory_1:
             pos = np.argwhere(obs[:, :, 1] == 10.0)[0]
             img_1[pos[0], pos[1]] = [255, 255, 0]  # 이동 경로
+            # print(pos)
         img_1[pos[0], pos[1]] = [0, 255, 255]
 
         initial = np.argwhere(trajectory_1[0][:, :, 1] == self.env.scale)[0]
@@ -367,7 +407,7 @@ class DQN_HER:
         target_1 = np.argwhere(trajectory_1[0][:, :, 2] == self.env.real_scale)[0]
         img_1[target_1[0], target_1[1]] = [0, 0, 255]  # 목표 위치
 
-        plt.subplot(1, 2, 1)
+        plt.subplot(1, 3, 1)
         plt.imshow(img_1)
         plt.title('Model 1')
 
@@ -395,10 +435,39 @@ class DQN_HER:
         target_1 = np.argwhere(trajectory_1[0][:, :, 2] == self.env.real_scale)[0]
         img_2[target_1[0], target_1[1]] = [0, 0, 255]  # 목표 위치
         
-        plt.subplot(1, 2, 2)
+        plt.subplot(1, 3, 2)
         plt.imshow(img_2)
         plt.title('Model 2')
+
+        # # 선형화된 경로 visualization
+        # img_3 = np.zeros((40, 40, 3), dtype=np.uint8)
+        # img_3[linearized_trajectory[0][:, :, 0] == 1.0] = [255, 0, 0]  # 장애물 red 
+        # img_3[linearized_trajectory[0][:, :, 0] == 2.0] = [255, 255, 255]  # 차선 white
+        # img_3[linearized_trajectory[0][:, :, 0] == 255.0] = [255, 0, 255]  #surplus pink
+
+        # for obs in linearized_trajectory:
+        #     pos_l = np.argwhere(obs[:, :, 1] == 10.0)[0]
+        #     img_3[pos_l[0], pos_l[1]] = [255, 255, 0]  # 이동 경로
+        # img_3[pos_l[0], pos_l[1]] = [0, 255, 255]
+
+        # initial = np.argwhere(linearized_trajectory[0][:, :, 1] == self.env.scale)[0]
+        # img_3[initial[0], initial[1]] = [0, 255, 0]  # 시작 위치
+
+        # target = np.argwhere(linearized_trajectory[0][:, :, 2] == self.env.scale)
+        # for t in target:
+        #     img_3[t[0],t[1]] = [0,50,255]
+
+        # plt.subplot(1, 3, 3)
+        # plt.imshow(img_3)
+        # plt.title('linearized_trajectory')
 
         plt.draw()
         plt.pause(0.1)
     plt.ioff()
+
+
+    def linearize_trajectory(trajectory):
+    # trajectory에서 각 점의 특정 변수에 대한 편미분 계산
+        gradients = np.gradient(trajectory, axis=0)
+        
+        return gradients

@@ -256,11 +256,13 @@ class Navigate2D:
                 # print("really good")
                 reward = 200.0
                 done = True
+                break
             
             elif any((car == t).all() for t in target):
                 # print("good")
                 reward = 200.0
                 done = True
+                break
 
         return new_grid, reward, done, dist_out, car_grid, crack
     

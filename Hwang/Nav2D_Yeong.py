@@ -249,15 +249,18 @@ class Navigate2D:
         new_grid[new_pos[0],new_pos[1],1] = self.scale*1.0
         
         # finish 조건 완화
-        if ((new_pos[0] == good_target[0]) and (new_pos[1] == good_target[1])):
-            # print("really good")
-            reward = 200.0
-            done = True
         
-        elif any((new_pos == t).all() for t in target):
-            # print("good")
-            reward = 100.0
-            done = True
+        for car in car_pos:
+            
+            if ((car[0] == good_target[0]) and (car[1] == good_target[1])):
+                # print("really good")
+                reward = 200.0
+                done = True
+            
+            elif any((car == t).all() for t in target):
+                # print("good")
+                reward = 200.0
+                done = True
 
         return new_grid, reward, done, dist_out, car_grid, crack
     

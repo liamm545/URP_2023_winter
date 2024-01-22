@@ -199,6 +199,7 @@ class Navigate2D:
         B = False
         
         done = False
+        done_1 = False
         crack = False
         # act = np.array([[1,0],[0,1],[-1,0],[0,-1]])
         act = np.array([[0,-1],[-1,-1],[-1,0],[-1,1],[0,1]])
@@ -255,16 +256,16 @@ class Navigate2D:
             if ((car[0] == good_target[0]) and (car[1] == good_target[1])):
                 # print("really good")
                 reward = 200.0
-                done = True
+                done_1 = True
                 break
             
             elif any((car == t).all() for t in target):
                 # print("good")
                 reward = 200.0
-                done = True
+                done_1 = True
                 break
 
-        return new_grid, reward, done, dist_out, car_grid, crack
+        return new_grid, reward, done_1, dist_out, car_grid, crack
     
     def get_tensor(self,grid):
         S = torch.Tensor(grid).transpose(2,1).transpose(1,0).unsqueeze(0)

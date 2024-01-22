@@ -56,6 +56,7 @@ class DQN_HER:
         ########
         obs, done = self.env.reset()
         ########
+        done_1 = False
         done = False
         state = self.env.get_tensor(obs)
         sum_r = 0
@@ -98,7 +99,7 @@ class DQN_HER:
             
             # print("previous :",previous_action,"current :",action)
 
-            new_obs, reward, done, dist, car_grid, crack = self.env.step(obs,action.item(),previous_action)
+            new_obs, reward, done_1, dist, car_grid, crack = self.env.step(obs,action.item(),previous_action)
             previous_action = action.item()
 
             if not crack:
@@ -127,12 +128,12 @@ class DQN_HER:
                 self.target_model.load_state_dict(self.model.state_dict())
                 self.step_counter = 0
                 print('updated target model')
-            if done : 
+            if done or done_1: 
                 break
                 
                 
         ##################################
-        # if i % 20 ==0:
+        # if i % 1 ==0:
         #     self.visualize_episode(trajectory, trajectory2)
         ##################################
 
@@ -142,12 +143,15 @@ class DQN_HER:
         for item in her_list:
             self.replay_buffer.append(item)
         
-        if min_dist <= 3.0:
-            if min_dist == 0.0:
-                print("really good!")
-            else:
-                print("good!")
-            min_dist = 0.0    
+        # if min_dist <= 3.0:
+        #     if min_dist == 0.0:
+        #         print("really good!")
+        #     else:
+        #         print("good!")
+        #     min_dist = 0.0    
+        if done_1:
+            print("good!")
+            min_dist = 0.0
         
         self.log.add_item('tot_return',sum_r)
         self.log.add_item('avg_loss',mean_loss.get())
@@ -157,6 +161,7 @@ class DQN_HER:
         self.her.reset()
         obs, done = self.env.reset()
         done = False
+        done_1 = False
         state = self.env.get_tensor(obs)
         sum_r = 0
         min_dist = 100000
@@ -185,7 +190,7 @@ class DQN_HER:
                 # action = torch.LongTensor([action])
             else:
                 action = torch.argmax(Q,dim=1)
-            new_obs, reward, done, dist, _, _ = self.env.step(obs,action.item(),previous_action)
+            new_obs, reward, done_1, dist, _, _ = self.env.step(obs,action.item(),previous_action)
             previous_action = action.item()
 
             new_state = self.env.get_tensor(new_obs)

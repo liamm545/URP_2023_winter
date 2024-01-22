@@ -132,8 +132,8 @@ class DQN_HER:
                 
                 
         ##################################
-        if i % 20 ==0:
-            self.visualize_episode(trajectory, trajectory2)
+        # if i % 20 ==0:
+        #     self.visualize_episode(trajectory, trajectory2)
         ##################################
 
         print("!!!!!!!!!!!!!!1reward :",sum_r)

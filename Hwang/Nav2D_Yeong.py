@@ -217,6 +217,7 @@ class Navigate2D:
         car_grid = self.make_car_boound(car_grid,yaw,new_pos) # 현재 차량을 그린 car_grid 가져옴
         car_pos = np.where((car_grid[:,:,1]==255) & (car_grid[:,:,2]==255)) # car_grid로부터 차가 차지하는 좌표들 가져옴
         car_pos = list(zip(car_pos[0],car_pos[1]))
+        reward += -1.0
         
         if (np.any(new_pos < 0.0) or new_pos[1] > (39.0)):
             #dist = np.linalg.norm(pos - target)
@@ -227,18 +228,18 @@ class Navigate2D:
             # 장애물 부딪히면 학습 종료 -> 우선적으로 판별함
             if new_grid[car[0],car[1],0] == 1.0:
                 crack = True
-                reward += -1.0
+                reward += -10.0
                 return grid, reward, done, dist_out, car_grid, crack
         
         for car in car_pos :
             # 패딩 부분 밟으면 감점하고 이동
             if new_grid[car[0],car[1],0] == 255.0:
-                reward += -1.0
+                reward += -2.0
                 A = True
             
             # 차선 밟으면 감점하고 이동
             elif new_grid[car[0],car[1],0] == 2.0 : 
-                reward += -2.0
+                reward += -5.0
                 B = True
 
             if A or B:

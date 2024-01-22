@@ -29,7 +29,7 @@ gamma = 0.9999
 buffer_size = 1000000
 ddqn = True
 alg = DQN_HER(env, gamma, buffer_size, ddqn)
-epochs = 50000
+epochs = 5000
 distances = deque(maxlen=100)
 n_data = 1000
 
